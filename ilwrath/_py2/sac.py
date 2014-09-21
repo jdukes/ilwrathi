@@ -22,7 +22,7 @@ class Sac(object):
     the values for keys. This is illustrated by the simple_demo.py in
     the demo directory:
 
-    from eggsac import Sac
+    from ilwrath import Sac
 
     class LookAtMySac(Sac):
     
