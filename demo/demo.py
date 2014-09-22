@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import json
 from string import letters, digits
 from random import randint, choice
 
@@ -42,7 +41,7 @@ class PetSac(Sac):
         assert resp.status_code == 200, "shit broke"
         return pet_d
 
-    def get_orderid(self):
+    def get_order(self):
         order_dict = {
             "id": randint(1,5),
             "petId": self["pet"]["id"],
@@ -58,11 +57,11 @@ class PetSac(Sac):
         if key == "pet":
             r = self.client.get_pet(value["id"])
             return r.status_code == 200
-        if key == "orderid":
+        if key == "order":
             r = self.client.get_store_order(value["id"])
         else:
             return True
 
 
 #p = PetSac()
-#p.client.delete_store_order(p["orderid"]["id"])
+#p.client.delete_store_order(p["order"]["id"])

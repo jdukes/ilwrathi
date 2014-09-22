@@ -14,12 +14,16 @@ proxies = {'http':'http://localhost:8080'}
 headers = {"Content-Type":"application/json; charset=UTF-8"}
 
 class PetStoreClient(object):
-    
+    history = []
+
     def __init__(self, baseurl):
         self.baseurl = baseurl
         self.session = requests.session()
+        self.session.hooks["response"].append(self.__add_history)
         
     def __getattr__(self, name):
+        if name in self.__class__.__dict__:
+            return self.__class__.__dict__[name]
         method, endpoint = name.split('_',1)
         endpoint = '/'.join(endpoint.split('_'))
         target = self.baseurl + '/' +  endpoint
@@ -54,3 +58,6 @@ class PetStoreClient(object):
             url = target + '/' + args 
             return self.session.delete(url)
         return _func
+
+    def __add_history(self, response, *args, **kwargs):
+        self.history.append(response)
