@@ -6,7 +6,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__),'ilwrath'))
 import ilwrath
 
 setup(name="ilwrath",
-      version="0.1",
+      version="0.2",
       description="A framework for building web pen test tools",
       url="https://github.com/jdukes/ilwrath",
       author="Josh Dukes",
@@ -14,4 +14,4 @@ setup(name="ilwrath",
       license="GNU General Public License v3 (GPLv3)",
       keywords = "hacker, web, CTF, pen test",
       long_description=ilwrath.__doc__,
-      packages=["ilwrath"])
+      packages=["ilwrath", "ilwrath._py2"])
