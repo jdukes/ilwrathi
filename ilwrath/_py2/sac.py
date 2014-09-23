@@ -65,7 +65,6 @@ class Sac(object):
     _cur_values = {}
     
     def __init__(self, name=None):
-        
         self.name = name
 
     def __getitem__(self, key):
@@ -80,6 +79,15 @@ class Sac(object):
                 return self._get_and_update_entry(key)
             except KeyError:
                 raise KeyError(key)
+
+    def new(self, key):
+        """Returns a unique item"""
+        try:
+            val =  self.__class__.__dict__["get_" + key](self)
+            self.history.append(val)
+            return val
+        except KeyError:
+            raise KeyError(key)
 
     def _get_and_update_entry(self, key):
         self._archive_vals()
