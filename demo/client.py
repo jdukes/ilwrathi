@@ -10,7 +10,7 @@ except ImportError:
     print "pip install requests"
     raise
 
-proxies = {'http':'http://localhost:8080'}
+#proxies = {'http':'http://localhost:8080'}
 headers = {"Content-Type":"application/json; charset=UTF-8"}
 
 class PetStoreClient(object):
@@ -42,14 +42,14 @@ class PetStoreClient(object):
         url = target
         def _func(jdict):
             return self.session.post(target, data=json.dumps(jdict), 
-                                 headers=headers, proxies=proxies)
+                                 headers=headers)#, proxies=proxies)
         return _func
     
     def _put(self, target):
         url = target
         def _func(jdict):
             return self.session.put(target, data=json.dumps(jdict), 
-                                headers=headers, proxies=proxies)
+                                headers=headers)#, proxies=proxies)
         return _func
     
     def _delete(self, target):

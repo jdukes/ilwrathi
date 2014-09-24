@@ -61,11 +61,11 @@ class Sac(object):
     Out[6]: 'as a string it looks like: mysac'
 
     """ 
-    history = []
-    _cur_values = {}
     
     def __init__(self, name=None):
         self.name = name
+        self._cur_values = {}
+        self.history = []
 
     def __getitem__(self, key):
         if key in self._cur_values:
