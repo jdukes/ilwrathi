@@ -15,10 +15,10 @@ def _rnd_str(length):
 URL = "http://petstore.swagger.wordnik.com:80/api"
 
 class PetSac(Sac):
-
+ 
     def __init__(self, name="petsac"):
-        self.name = name
-        self.client = PetStoreClient(URL)
+p        self.client = PetStoreClient(URL)
+        super(PetSac, self).__init__(name)
         
     def get_pet(self):
         pet_d = {"id": randint(100, 500),

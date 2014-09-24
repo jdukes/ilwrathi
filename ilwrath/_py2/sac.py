@@ -61,6 +61,8 @@ class Sac(object):
     Out[6]: 'as a string it looks like: mysac'
 
     """ 
+    _cur_values = None
+    history = None
     
     def __init__(self, name=None):
         self.name = name
