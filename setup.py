@@ -6,7 +6,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__),'ilwrath'))
 import ilwrath
 
 setup(name="ilwrath",
-      version="0.2",
+      version="0.3",
       description="A framework for building web pen test tools",
       url="https://github.com/jdukes/ilwrath",
       author="Josh Dukes",
