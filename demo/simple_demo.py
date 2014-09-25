@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from ilwrath import Sac
 
-class LookAtMySac(Sac):
+class mySac(Sac):
     
     def get_spam(self):
         print "execing spam"
@@ -15,5 +15,5 @@ class LookAtMySac(Sac):
         print "execing baz"
         return "spam and eggs relies on %(spam)s and %(eggs)s" % self
 
-#mysac = LookAtMySac("mysac")
+#mysac = mySac("mysac")
 #mysac["spamandeggs"]

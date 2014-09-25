@@ -24,7 +24,7 @@ class Sac(object):
 
     from ilwrath import Sac
 
-    class LookAtMySac(Sac):
+    class mySac(Sac):
     
     def get_spam(self):
         print "execing spam"
@@ -40,10 +40,10 @@ class Sac(object):
 
     And here's how it works:
 
-    In [1]: mysac = LookAtMySac("mysac")
+    In [1]: mysac = mySac("mysac")
 
     In [2]: mysac
-    Out[2]: <LookAtMySac 'mysac': {}>
+    Out[2]: <mySac 'mysac': {}>
 
     In [3]: mysac["spamandeggs"]
     execing baz
@@ -52,7 +52,7 @@ class Sac(object):
     Out[3]: 'spamandeggs relies on spam and eggs'
 
     In [4]: mysac
-    Out[4]: <LookAtMySac 'mysac': {'eggs': 'eggs', 'spamandeggs': 'baz relies on spam and eggs', 'spam': 'spam'}>
+    Out[4]: <mySac 'mysac': {'eggs': 'eggs', 'spamandeggs': 'baz relies on spam and eggs', 'spam': 'spam'}>
 
     In [5]: mysac["eggs"]
     Out[5]: 'eggs'
@@ -61,13 +61,13 @@ class Sac(object):
     Out[6]: 'as a string it looks like: mysac'
 
     """ 
-    _cur_values = None
-    history = None
     
-    def __init__(self, name=None):
+    def __init__(self, name=None, *args, **kwargs):
         self.name = name
         self._cur_values = {}
         self.history = []
+        if "_setup" in self.__class__.__dict__:
+            self._setup(*args, **kwargs)
 
     def __getitem__(self, key):
         if key in self._cur_values:
