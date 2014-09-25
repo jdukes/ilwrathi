@@ -99,10 +99,13 @@ class Sac(object):
 
     def __setitem__(self, key, value):
         self._archive_vals()
-        self._cur_values[key] = val
+        if "set_" + key in self.__class__.__dict__:
+            self._cur_values[key] = self.__class__.__dict__["set_" + key](self, value)
 
     def __delitem__(self, key):
         self._archive_vals()
+        if "del_" + key in self.__class__.__dict__:
+            self.__class__.__dict__["del_" + key](self)
         del(self._cur_values[key])
 
     def __str__(self):
@@ -112,6 +115,7 @@ class Sac(object):
         return self
 
     def next(self):
+        #do something better with this
         self.clear()
         return self
 

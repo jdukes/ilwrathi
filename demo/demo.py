@@ -39,6 +39,14 @@ class PetSac(Sac):
         assert resp.status_code == 200, "shit broke"
         return pet_d
 
+    def del_pet(self):
+        resp = self.client.delete_pet(self["pet"]["id"])
+        assert resp.status_code == 200, "shit broke"
+
+    def set_pet(self, value):
+        self.client.put_pet(value)
+        return value
+        
     def get_order(self):
         order_dict = {
             "id": randint(1,5),
@@ -51,6 +59,13 @@ class PetSac(Sac):
         assert r.status_code == 200, "shit fucked up"
         return order_dict
         
+    def del_order(self):
+        resp = self.client.delete_order(self["order"]["id"])
+        assert resp.status_code == 200, "shit broke"
+
+    def set_order(self, value):
+        self.client.put_order(value)
+
     def validate(self, key, value):
         if key == "pet":
             r = self.client.get_pet(value["id"])
