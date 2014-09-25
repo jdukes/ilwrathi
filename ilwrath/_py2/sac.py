@@ -70,6 +70,14 @@ class Sac(object):
             self._setup(*args, **kwargs)
 
     def __getitem__(self, key):
+        """x.__getitem__(y) <==> x[y]
+        
+        If value is in x._cur_values and there is a validation
+        function, validates the value and returns value assocated with
+        y. If there is no validation function simply returns value
+        assocated with y. If there is no value, performs x.get_<y>()
+        and populates the x._cur_values cache.
+        """
         if key in self._cur_values:
             value = self._cur_values[key]
             if  "validate" in self.__class__.__dict__:
@@ -83,7 +91,7 @@ class Sac(object):
                 raise KeyError(key)
 
     def new(self, key):
-        """Returns a unique item"""
+        """Performs a similar function to x.__getitem__(y) without caching"""
         try:
             val =  self.__class__.__dict__["get_" + key](self)
             self.history.append(val)
@@ -92,17 +100,34 @@ class Sac(object):
             raise KeyError(key)
 
     def _get_and_update_entry(self, key):
+        """x._get_and_update_entry(y) <==> del(x[y]) then x[y]
+        
+        Archives old values and gets a new copy of `key`.
+        """
         self._archive_vals()
         val = self.__class__.__dict__["get_" + key](self)
         self._cur_values[key] = val
         return val
 
     def __setitem__(self, key, value):
+        """x.__setitem__(i, y) <==> x[i]=y or x.set_<i>(y)
+
+        Archive values in history. If x.set_<i> exists set
+        x[i]=x.set_<i>(y). If not, simply set x[i]=y.
+        """        
         self._archive_vals()
         if "set_" + key in self.__class__.__dict__:
             self._cur_values[key] = self.__class__.__dict__["set_" + key](self, value)
+        else:
+            self._cur_values[key] = value
 
     def __delitem__(self, key):
+        """x.__delitem__(y) <==> del(x[y])
+        
+        If x.del_<y> exists, x.del_<y>(), then del(x[y]). If not,
+        del(x[y]).
+
+        """
         self._archive_vals()
         if "del_" + key in self.__class__.__dict__:
             self.__class__.__dict__["del_" + key](self)
@@ -120,13 +145,12 @@ class Sac(object):
         return self
 
     def __add__(self, other):
+        """x.__add__(y) <==> x+y"""
         return self.name + other
 
     def __radd__(self, other):
+        """x.__radd__(y) <==> y+x"""
         return other + self.name
-        
-    def get_history(self):
-        return self.history
         
     def __repr__(self):
         return "<%s '%s': %s>" % (self.__class__.__name__,
