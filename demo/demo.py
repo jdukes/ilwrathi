@@ -1,16 +1,15 @@
 #!/usr/bin/env python
-from string import letters, digits
-from random import randint, choice
-
 from sys import path
 path.insert(0,'..')
 from ilwrath import Sac
 from client import PetStoreClient
+from random import randint
 
-
-def _rnd_str(length):
-    #shitty rand, don't use for anything but demo
-    return ''.join(choice(letters + digits) for _ in range(length))
+try:
+    import rstr
+except ImportError:
+    print "easy_install rstr"
+    raise
 
 URL = "http://petstore.swagger.wordnik.com:80/api"
 
@@ -23,16 +22,16 @@ class PetSac(Sac):
         pet_d = {"id": randint(100, 500),
                  "category": {
                      "id": randint(100, 500),
-                     "name": _rnd_str(5),
+                     "name": rstr.letters(5),
                  },
-                 "name": _rnd_str(5),
+                 "name": rstr.letters(5),
                  "photoUrls": [
                      ""
                  ],
                  "tags": [
                      {
                          "id": 0,
-                         "name": _rnd_str(5)
+                         "name": rstr.letters(5)
                      }
                  ],
                  "status": ""}

@@ -24,41 +24,41 @@ class Sac(object):
 
     from ilwrath import Sac
 
-    class mySac(Sac):
-    
-    def get_spam(self):
-        print "execing spam"
-        return "spam"
-    
-    def get_eggs(self):
-        print "execing eggs"
-        return "eggs"
+     class mySac(Sac):
 
-    def get_spamandeggs(self):
-        print "execing baz"
-        return "spam and eggs relies on %(spam)s and %(eggs)s" % self
+     def get_spam(self):
+         print "execing spam"
+         return "spam"
 
-    And here's how it works:
+     def get_eggs(self):
+         print "execing eggs"
+         return "eggs"
 
-    In [1]: mysac = mySac("mysac")
+     def get_spamandeggs(self):
+         print "execing baz"
+         return "spam and eggs relies on %(spam)s and %(eggs)s" % self
 
-    In [2]: mysac
-    Out[2]: <mySac 'mysac': {}>
+     And here's how it works:
 
-    In [3]: mysac["spamandeggs"]
-    execing baz
-    execing spam
-    execing eggs
-    Out[3]: 'spamandeggs relies on spam and eggs'
+     In [1]: mysac = mySac("mysac")
 
-    In [4]: mysac
-    Out[4]: <mySac 'mysac': {'eggs': 'eggs', 'spamandeggs': 'baz relies on spam and eggs', 'spam': 'spam'}>
+     In [2]: mysac
+     Out[2]: <mySac 'mysac': {}>
 
-    In [5]: mysac["eggs"]
-    Out[5]: 'eggs'
+     In [3]: mysac["spamandeggs"]
+     execing baz
+     execing spam
+     execing eggs
+     Out[3]: 'spamandeggs relies on spam and eggs'
 
-    In [6]: "as a string it looks like: " + mysac
-    Out[6]: 'as a string it looks like: mysac'
+     In [4]: mysac
+     Out[4]: <mySac 'mysac': {'eggs': 'eggs', 'spamandeggs': 'baz relies on spam and eggs', 'spam': 'spam'}>
+
+     In [5]: mysac["eggs"]
+     Out[5]: 'eggs'
+
+     In [6]: "as a string it looks like: " + mysac
+     Out[6]: 'as a string it looks like: mysac'
 
     """ 
     
