@@ -65,16 +65,14 @@ class PetSac(Sac):
 
     def set_order(self, value):
         self.client.put_order(value)
+        
+    def check_pet(self, value):
+        r = self.client.get_pet(value["id"])
+        return r.status_code == 200
 
-    def validate(self, key, value):
-        if key == "pet":
-            r = self.client.get_pet(value["id"])
-            return r.status_code == 200
-        if key == "order":
-            r = self.client.get_store_order(value["id"])
-        else:
-            return True
-
+    def check_order(self, value):
+        r = self.client.get_store_order(value["id"])
+        return r.status_code == 200
 
 #p = PetSac()
 #p.client.delete_store_order(p["order"]["id"])

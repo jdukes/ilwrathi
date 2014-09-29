@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 #TODO: serialization
+#TODO: update doc
 
 class Sac(object):
     """The Sac base class is a state independant store for values.
@@ -77,11 +78,13 @@ class Sac(object):
         y. If there is no validation function simply returns value
         assocated with y. If there is no value, performs x.get_<y>()
         and populates the x._cur_values cache.
+
+        Be careful of infinite recursion.
         """
         if key in self._cur_values:
             value = self._cur_values[key]
-            if  "validate" in self.__class__.__dict__:
-                if not self.validate(key, value):
+            if ("check_" + key) in self.__class__.__dict__:
+                if not self.__class__.__dict__["check_" + key](self, value):
                     return self._get_and_update_entry(key)
             return value
         else:
@@ -89,6 +92,32 @@ class Sac(object):
                 return self._get_and_update_entry(key)
             except KeyError:
                 raise KeyError(key)
+
+    def iterkeys(self):
+        """D.iterkeys() -> an iterator over the keys of D"""
+        return (i[4:] for i in self.__class__.__dict__
+                 if i.startswith("get_"))
+    
+    def keys(self):
+        """D.keys() -> list of D's keys"""
+        #there's  better way to do this
+        return [k for k in self.iterkeys()]
+
+    def itervalues(self):
+        """D.values() -> list of D's values"""
+        return (self[k] for k in self.iterkeys())
+        
+    def values(self):
+        """D.values() -> list of D's values"""
+        return [v for v in self.itervalues()]
+
+    def iteritems(self):
+        """D.iteritems() -> an iterator over the (key, value) items of D"""
+        return ((k,v) for k,v in zip(self.iterkeys(), self.itervalues()))
+
+    def items(self):
+        """D.items() -> list of D's (key, value) pairs, as 2-tuples"""
+        return [(k,v) for k,v in self.iteritems()]
 
     def new(self, key):
         """Performs a similar function to x.__getitem__(y) without caching"""
