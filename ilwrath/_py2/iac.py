@@ -6,10 +6,26 @@ class IdempotentAccessor(object):
     """The IdempotentAccessor base class is an idempotent store for values.
 
     This class acts like a dictionary. When a key is referenced, the
-    Sac will check for the key in it's current state, optionally check
-    that the value for the key is still valid, and return the value if
-    it exists. If the value for the key is nonexistant or invalid, the
-    Sac will attempt to update the value.
+    IdempotentAccessor will check for the key in it's current state,
+    optionally check that the value for the key is still valid, and
+    return the value if it exists. If the value for the key is
+    nonexistent or invalid, the IdempotentAccessor will attempt to
+    update the value.
+
+    The objects referenced by the accessor are anonymous and
+    idempotent. They are anonymous in that you reference the method of
+    accessing to get the stored value, not the value itself. This is
+    especially useful when it is irrelevant to reference a specific
+    object, but important to reference an object of a type tied to a
+    specific user.
+    
+    The property of idempotence comes from the dependency tree that is
+    transparently generated as one writes the accessors. By
+    referencing objects from the accessor as dependencies of other
+    objects the accessor will automatically resolve these
+    dependencies. As a result a tester does not need to place the
+    system in a state to access an object, but simply requests the
+    object and the accessor establishes and maintains that state. 
 
     The primary use case for this is in web service pen
     testing. Testing some service may require several unique objects
@@ -20,9 +36,9 @@ class IdempotentAccessor(object):
     allowing you to set up chained dependencies and automatically
     resolving them.
 
-    To use a Sac, subclass it. Create get_<key> functions that return
-    the values for keys. This is illustrated by the simple_demo.py in
-    the demo directory:
+    To use a IdempotentAccessor, subclass it. Create get_<key>
+    functions that return the values for keys. This is illustrated by
+    the simple_demo.py in the demo directory:
 
     from ilwrath import IdempotentAccessor
 

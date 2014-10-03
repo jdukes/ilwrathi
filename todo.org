@@ -1,3 +1,4 @@
+* Add doctest and unittest
 * token analyzer
 ** calc entropy per char
 ** entropy of string
