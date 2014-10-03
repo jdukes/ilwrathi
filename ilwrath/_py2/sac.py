@@ -61,13 +61,15 @@ class Sac(object):
     Out[6]: 'as a string it looks like: mysac'
 
     """ 
-    _cur_values = None
-    history = None
     
-    def __init__(self, name=None):
+    def __init__(self, name=None, **kwargs):
         self.name = name
         self._cur_values = {}
         self.history = []
+        if '_setup' in self.__class__.__dict__:
+            #get function sig of _setup if exists and merge with func
+            #sig of init
+            self._setup(**kwargs)
 
     def __getitem__(self, key):
         if key in self._cur_values:

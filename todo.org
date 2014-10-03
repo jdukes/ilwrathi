@@ -1,0 +1,20 @@
+* token analyzer
+** calc entropy per char
+** entropy of string
+** relevance <- what's the word?
+   given potential sample size, what is the probability that the
+   sample matches population?
+* automate race condition testing
+* add data models
+** think about data modeling syntax
+* add fuzzing mixin
+* add cross user base class
+* add client base classes
+* add crypto module
+* add unit test mixin
+  make automated tests generated from unit test framework. Generate
+  code? Must define fail cases differently for different clients.
+* calc reigonal entropy to highlight areas that are changing
+  use parser to break request/responses in to reigions. generate
+  entropy heat map visualization
+* write spring parser that greps code base for @RequestMapping and such
