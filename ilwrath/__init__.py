@@ -8,6 +8,6 @@ services with multiple dependances."""
 from sys import version_info as _version_info
 
 if _version_info.major == 2:
-    from ._py2 import Sac
+    from ._py2 import IdempotentAccessor
 
-__all__ = ["Sac"]
+__all__ = ["IdempotentAccessor"]

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from sys import path
 path.insert(0,'..')
-from ilwrath import Sac
+from ilwrath import ItempotentAccessor
 from client import PetStoreClient
 from random import randint
 
@@ -13,9 +13,9 @@ except ImportError:
 
 URL = "http://petstore.swagger.wordnik.com:80/api"
 
-class PetSac(Sac):
+class PetItempotentAccessor(ItempotentAccessor):
 
-    def _setup(self, name="petsac"):
+    def _setup(self, name="petItempotentAccessor"):
         self.client = PetStoreClient(URL)
         
     def get_pet(self):
@@ -74,5 +74,5 @@ class PetSac(Sac):
         r = self.client.get_store_order(value["id"])
         return r.status_code == 200
 
-#p = PetSac()
+#p = PetItempotentAccessor()
 #p.client.delete_store_order(p["order"]["id"])

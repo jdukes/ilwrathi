@@ -1,4 +1,4 @@
 #!/usr/bin/env python2
-from .sac import Sac
+from .iac import IdempotentAccessor
 
-__all__ = ["Sac"]
+__all__ = ["IdempotentAccessor"]

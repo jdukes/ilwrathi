@@ -2,8 +2,8 @@
 #TODO: serialization
 #TODO: update doc
 
-class Sac(object):
-    """The Sac base class is a state independant store for values.
+class IdempotentAccessor(object):
+    """The IdempotentAccessor base class is an idempotent store for values.
 
     This class acts like a dictionary. When a key is referenced, the
     Sac will check for the key in it's current state, optionally check
@@ -16,16 +16,17 @@ class Sac(object):
     to exist, which all have to be referenced together. The actual
     values of those references may be irrelevant for some testing. A
     hacker wants to focus on the important areas, letting the system
-    maintain everything else. A Sac does this by allowing you to set
-    up chained dependancies and automatically resolving them.
+    maintain everything else. A IdempotentAccessor does this by
+    allowing you to set up chained dependencies and automatically
+    resolving them.
 
     To use a Sac, subclass it. Create get_<key> functions that return
     the values for keys. This is illustrated by the simple_demo.py in
     the demo directory:
 
-    from ilwrath import Sac
+    from ilwrath import IdempotentAccessor
 
-     class mySac(Sac):
+     class myIdempotentAccessor(IdempotentAccessor):
 
      def get_spam(self):
          print "execing spam"
@@ -41,25 +42,37 @@ class Sac(object):
 
      And here's how it works:
 
-     In [1]: mysac = mySac("mysac")
+     In [1]: myiac = myIdempotentAccessor("myIdempotentAccessor")
 
-     In [2]: mysac
-     Out[2]: <mySac 'mysac': {}>
+     In [2]: myiac
+     Out[2]: <myIdempotentAccessor 'myiac': {}>
 
-     In [3]: mysac["spamandeggs"]
+     In [3]: myiac["spamandeggs"]
      execing baz
      execing spam
      execing eggs
      Out[3]: 'spamandeggs relies on spam and eggs'
 
-     In [4]: mysac
-     Out[4]: <mySac 'mysac': {'eggs': 'eggs', 'spamandeggs': 'baz relies on spam and eggs', 'spam': 'spam'}>
+     In [4]: myiac
+     Out[4]: <myIdempotentAccessor 'myiac': {'eggs': 'eggs', 'spamandeggs': 'baz relies on spam and eggs', 'spam': 'spam'}>
 
-     In [5]: mysac["eggs"]
+     In [5]: myiac["eggs"]
      Out[5]: 'eggs'
 
-     In [6]: "as a string it looks like: " + mysac
-     Out[6]: 'as a string it looks like: mysac'
+     In [6]: "as a string it looks like: " + myiac
+     Out[6]: 'as a string it looks like: myiac'
+
+    It is also possible to add state assurance and object deletion by
+    adding extra methods to the class. The return value of the
+    check_<key> method is evaluated as a bool to determine if the
+    object is still valid. 
+
+    If an object is no longer valid in the system, the accessor will
+    automatically call the get_<key> method again to reestablish the
+    system state.
+
+    The del_<key> method can be added to remove the <key> from the
+    target system when del(iac[key]) is called. 
 
     """ 
     

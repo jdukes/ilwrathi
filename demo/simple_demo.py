@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from ilwrath import Sac
+from ilwrath import IdempotentAccessor
 
-class mySac(Sac):
+class myIdempotentAccessor(IdempotentAccessor):
     
     def get_spam(self):
         print "execing spam"
@@ -15,5 +15,5 @@ class mySac(Sac):
         print "execing baz"
         return "spam and eggs relies on %(spam)s and %(eggs)s" % self
 
-#mysac = mySac("mysac")
-#mysac["spamandeggs"]
+#myIdempotentAccessor = myIdempotentAccessor("myIdempotentAccessor")
+#myIdempotentAccessor["spamandeggs"]
