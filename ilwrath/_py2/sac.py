@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 #TODO: serialization
+#TODO: update doc
 
 class Sac(object):
     """The Sac base class is a state independant store for values.
@@ -24,41 +25,41 @@ class Sac(object):
 
     from ilwrath import Sac
 
-    class LookAtMySac(Sac):
-    
-    def get_spam(self):
-        print "execing spam"
-        return "spam"
-    
-    def get_eggs(self):
-        print "execing eggs"
-        return "eggs"
+     class mySac(Sac):
 
-    def get_spamandeggs(self):
-        print "execing baz"
-        return "spam and eggs relies on %(spam)s and %(eggs)s" % self
+     def get_spam(self):
+         print "execing spam"
+         return "spam"
 
-    And here's how it works:
+     def get_eggs(self):
+         print "execing eggs"
+         return "eggs"
 
-    In [1]: mysac = LookAtMySac("mysac")
+     def get_spamandeggs(self):
+         print "execing baz"
+         return "spam and eggs relies on %(spam)s and %(eggs)s" % self
 
-    In [2]: mysac
-    Out[2]: <LookAtMySac 'mysac': {}>
+     And here's how it works:
 
-    In [3]: mysac["spamandeggs"]
-    execing baz
-    execing spam
-    execing eggs
-    Out[3]: 'spamandeggs relies on spam and eggs'
+     In [1]: mysac = mySac("mysac")
 
-    In [4]: mysac
-    Out[4]: <LookAtMySac 'mysac': {'eggs': 'eggs', 'spamandeggs': 'baz relies on spam and eggs', 'spam': 'spam'}>
+     In [2]: mysac
+     Out[2]: <mySac 'mysac': {}>
 
-    In [5]: mysac["eggs"]
-    Out[5]: 'eggs'
+     In [3]: mysac["spamandeggs"]
+     execing baz
+     execing spam
+     execing eggs
+     Out[3]: 'spamandeggs relies on spam and eggs'
 
-    In [6]: "as a string it looks like: " + mysac
-    Out[6]: 'as a string it looks like: mysac'
+     In [4]: mysac
+     Out[4]: <mySac 'mysac': {'eggs': 'eggs', 'spamandeggs': 'baz relies on spam and eggs', 'spam': 'spam'}>
+
+     In [5]: mysac["eggs"]
+     Out[5]: 'eggs'
+
+     In [6]: "as a string it looks like: " + mysac
+     Out[6]: 'as a string it looks like: mysac'
 
     """ 
     
@@ -72,10 +73,20 @@ class Sac(object):
             self._setup(**kwargs)
 
     def __getitem__(self, key):
+        """x.__getitem__(y) <==> x[y]
+        
+        If value is in x._cur_values and there is a validation
+        function, validates the value and returns value assocated with
+        y. If there is no validation function simply returns value
+        assocated with y. If there is no value, performs x.get_<y>()
+        and populates the x._cur_values cache.
+
+        Be careful of infinite recursion.
+        """
         if key in self._cur_values:
             value = self._cur_values[key]
-            if  "validate" in self.__class__.__dict__:
-                if not self.validate(key, value):
+            if ("check_" + key) in self.__class__.__dict__:
+                if not self.__class__.__dict__["check_" + key](self, value):
                     return self._get_and_update_entry(key)
             return value
         else:
@@ -84,8 +95,34 @@ class Sac(object):
             except KeyError:
                 raise KeyError(key)
 
+    def iterkeys(self):
+        """D.iterkeys() -> an iterator over the keys of D"""
+        return (i[4:] for i in self.__class__.__dict__
+                 if i.startswith("get_"))
+    
+    def keys(self):
+        """D.keys() -> list of D's keys"""
+        #there's  better way to do this
+        return [k for k in self.iterkeys()]
+
+    def itervalues(self):
+        """D.values() -> list of D's values"""
+        return (self[k] for k in self.iterkeys())
+        
+    def values(self):
+        """D.values() -> list of D's values"""
+        return [v for v in self.itervalues()]
+
+    def iteritems(self):
+        """D.iteritems() -> an iterator over the (key, value) items of D"""
+        return ((k,v) for k,v in zip(self.iterkeys(), self.itervalues()))
+
+    def items(self):
+        """D.items() -> list of D's (key, value) pairs, as 2-tuples"""
+        return [(k,v) for k,v in self.iteritems()]
+
     def new(self, key):
-        """Returns a unique item"""
+        """Performs a similar function to x.__getitem__(y) without caching"""
         try:
             val =  self.__class__.__dict__["get_" + key](self)
             self.history.append(val)
@@ -94,17 +131,37 @@ class Sac(object):
             raise KeyError(key)
 
     def _get_and_update_entry(self, key):
+        """x._get_and_update_entry(y) <==> del(x[y]) then x[y]
+        
+        Archives old values and gets a new copy of `key`.
+        """
         self._archive_vals()
         val = self.__class__.__dict__["get_" + key](self)
         self._cur_values[key] = val
         return val
 
     def __setitem__(self, key, value):
+        """x.__setitem__(i, y) <==> x[i]=y or x.set_<i>(y)
+
+        Archive values in history. If x.set_<i> exists set
+        x[i]=x.set_<i>(y). If not, simply set x[i]=y.
+        """        
         self._archive_vals()
-        self._cur_values[key] = val
+        if "set_" + key in self.__class__.__dict__:
+            self._cur_values[key] = self.__class__.__dict__["set_" + key](self, value)
+        else:
+            self._cur_values[key] = value
 
     def __delitem__(self, key):
+        """x.__delitem__(y) <==> del(x[y])
+        
+        If x.del_<y> exists, x.del_<y>(), then del(x[y]). If not,
+        del(x[y]).
+
+        """
         self._archive_vals()
+        if "del_" + key in self.__class__.__dict__:
+            self.__class__.__dict__["del_" + key](self)
         del(self._cur_values[key])
 
     def __str__(self):
@@ -114,17 +171,17 @@ class Sac(object):
         return self
 
     def next(self):
+        #do something better with this
         self.clear()
         return self
 
     def __add__(self, other):
+        """x.__add__(y) <==> x+y"""
         return self.name + other
 
     def __radd__(self, other):
+        """x.__radd__(y) <==> y+x"""
         return other + self.name
-        
-    def get_history(self):
-        return self.history
         
     def __repr__(self):
         return "<%s '%s': %s>" % (self.__class__.__name__,
