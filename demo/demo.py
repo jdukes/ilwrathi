@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from sys import path
 path.insert(0,'..')
-from ilwrath import ItempotentAccessor
+from ilwrath import IdempotentAccessor
 from client import PetStoreClient
 from random import randint
 
@@ -13,7 +13,7 @@ except ImportError:
 
 URL = "http://petstore.swagger.wordnik.com:80/api"
 
-class PetItempotentAccessor(ItempotentAccessor):
+class PetItempotentAccessor(IdempotentAccessor):
 
     def _setup(self, name="petItempotentAccessor"):
         self.client = PetStoreClient(URL)

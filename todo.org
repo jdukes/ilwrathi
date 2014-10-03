@@ -1,4 +1,10 @@
 * Add doctest and unittest
+* add code for attacking docker images/vm
+  garland/dvwa
+  dvws
+  adamdoupe/WackoPicko
+  owasp thing
+
 * token analyzer
 ** calc entropy per char
 ** entropy of string
