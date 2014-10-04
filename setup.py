@@ -1,9 +1,9 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from datetime import datetime #for version string
 
 import os
 import sys
-sys.path.insert(0,os.path.join(os.path.dirname(__file__),'ilwrathi'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__),'ilwrathi'))
 import ilwrathi
 
 now = datetime.now()
@@ -17,6 +17,16 @@ setup(name="ilwrathi",
       author="Josh Dukes",
       author_email="hex@neg9.org",
       license="GNU General Public License v3 (GPLv3)",
-      keywords = "hacker, web, CTF, pen test",
+      classifiers=[
+          'Development Status :: 3 - Alpha',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+          'Natural Language :: English',
+          'Operating System :: OS Independent', # Tested on Linux and OSX
+          'Programming Language :: Python :: 2',
+          #'Programming Language :: Python :: 3', #uncomment when tested on py3
+          'Topic :: Security',
+          'Topic :: Software Development :: Testing'],
+      keywords="hacker web CTF pen test",
       long_description=ilwrathi.__doc__,
-      packages=["ilwrathi", "ilwrathi._py2"])
+      packages=find_packages(exclude=['demo', 'tests*']))
