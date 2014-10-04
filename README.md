@@ -1,8 +1,8 @@
-ilwrath
-=======
+ilwrathi
+========
 
-A set of convinience tools for testing web sites and services. Currently only Sac exists. 
+A set of convinience tools for testing web sites and services. 
 
-Sac is a Stateless value ACcessor for web service testing.
+<- put more documentation here before release
 
-Ilwrath is named after a race of spider like creatures in the Star Controller universe. 
+Ilwrathi is named after a race of spider like creatures in the Star Controller universe. 
