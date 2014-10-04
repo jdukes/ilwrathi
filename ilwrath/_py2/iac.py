@@ -40,7 +40,7 @@ class IdempotentAccessor(object):
     functions that return the values for keys. This is illustrated by
     the simple_demo.py in the demo directory:
 
-    from ilwrath import IdempotentAccessor
+    from ilwrathi import IdempotentAccessor
 
      class myIdempotentAccessor(IdempotentAccessor):
 

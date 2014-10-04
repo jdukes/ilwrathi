@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from ilwrath import IdempotentAccessor
+from ilwrathi import IdempotentAccessor
 
 class myIdempotentAccessor(IdempotentAccessor):
     

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from sys import path
 path.insert(0,'..')
-from ilwrath import IdempotentAccessor
+from ilwrathi import IdempotentAccessor
 from client import PetStoreClient
 from random import randint
 
