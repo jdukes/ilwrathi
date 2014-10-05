@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+#TODO: set up python 2 meta class to handle "keys" and such
 #TODO: serialization
 #TODO: update doc
 
@@ -128,12 +129,12 @@ class IdempotentAccessor(object):
 
     def iterkeys(self):
         """D.iterkeys() -> an iterator over the keys of D"""
+        #there's  better way to do this
         return (i[4:] for i in self.__class__.__dict__
                  if i.startswith("get_"))
     
     def keys(self):
         """D.keys() -> list of D's keys"""
-        #there's  better way to do this
         return [k for k in self.iterkeys()]
 
     def itervalues(self):
