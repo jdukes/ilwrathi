@@ -29,4 +29,5 @@ setup(name="ilwrathi",
           'Topic :: Software Development :: Testing'],
       keywords="hacker web CTF pen test",
       long_description=ilwrathi.__doc__,
-      packages=find_packages(exclude=['demo', 'tests*']))
+      packages=find_packages(exclude=['demo', 'tests*']),
+      test_suite="tests.TestIdempotentAccessor")

@@ -91,7 +91,9 @@ class IdempotentAccessor(object):
     target system when del(iac[key]) is called. 
 
     """ 
-    
+    #make this more meta
+    #http://eli.thegreenplace.net/2011/08/14/python-metaclasses-by-example/
+
     def __init__(self, name=None, **kwargs):
         self.name = name
         self._cur_values = {}
