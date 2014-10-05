@@ -99,10 +99,10 @@ class IdempotentAccessor(object):
         self.name = name
         self._cur_values = {}
         self.history = []
-        if '_setup' in self.__class__.__dict__:
+        if 'setup' in self.__class__.__dict__:
             #get function sig of _setup if exists and merge with func
             #sig of init
-            self._setup(**kwargs)
+            self.setup(**kwargs)
 
     def __getitem__(self, key):
         """x.__getitem__(y) <==> x[y]
