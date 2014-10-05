@@ -25,6 +25,7 @@ class IdempotentAccessorTestClass(IdempotentAccessor):
         self._set_executed("setup")
 
     def _set_executed(self, method):
+        print "executing for method %s" % method
         self.__dict__[method+"_executed"] = True
 
     def get_uniquestr(self):
@@ -88,63 +89,66 @@ class TestIdempotentAccessor(unittest.TestCase):
         self.assertEqual("barfoo", "bar" + self.iac_foo)
 
     def test___repr__(self):
-        idempotent_accessor = IdempotentAccessorTestClass("foo")
-        # self.assertEqual(expected, idempotent_accessor.__repr__())
-        assert False # TODO: implement your test here
+        values = self.iac_foo.values()
+        comp = "<IdempotentAccessorTestClass '%s': %s>" % (self.iac_foo.name, 
+                                                           self.iac_foo._cur_values)
+        self.assertEqual(comp, repr(self.iac_foo))
 
     def test___setitem__(self):
-        # idempotent_accessor = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, idempotent_accessor.__setitem__(key, value))
-        assert False # TODO: implement your test here
+        #why is this failing???
+        self.iac_foo["spam"] = "ignored"
+        self.assertTrue(self.iac_foo.set_spam_executed)
 
     def test___str__(self):
-        # idempotent_accessor = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, idempotent_accessor.__str__())
-        assert False # TODO: implement your test here
+        self.assertEqual("foo", str(self.iac_foo))
 
     def test_clear(self):
-        # idempotent_accessor = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, idempotent_accessor.clear())
-        assert False # TODO: implement your test here
+        self.iac_foo.clear()
+        self.assertEquals(self.iac_foo._cur_values, {})
 
     def test_items(self):
-        # idempotent_accessor = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, idempotent_accessor.items())
-        assert False # TODO: implement your test here
+        #this test should check that the function blah.get_<key> is
+        #the same as key for each key
+        assert False
+        #expected = self.iac_foo.items()
+        #self.assertEqual(expected, self.iac_foo.items())
 
     def test_iteritems(self):
-        # idempotent_accessor = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, idempotent_accessor.iteritems())
-        assert False # TODO: implement your test here
+        #could use a better test
+        assert False
+        self.assertEqual(self.iac_foo.items(), 
+                         [(k,v) for k,v in self.iac_foo.iteritems()])
 
     def test_iterkeys(self):
-        # idempotent_accessor = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, idempotent_accessor.iterkeys())
+        # self.iac_foo = IdempotentAccessorTestClass(name, **kwargs)
+        # self.assertEqual(expected, self.iac_foo.iterkeys())
         assert False # TODO: implement your test here
 
     def test_itervalues(self):
-        # idempotent_accessor = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, idempotent_accessor.itervalues())
+        # self.iac_foo = IdempotentAccessorTestClass(name, **kwargs)
+        # self.assertEqual(expected, self.iac_foo.itervalues())
         assert False # TODO: implement your test here
 
     def test_keys(self):
-        # idempotent_accessor = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, idempotent_accessor.keys())
+        # dict( (k[4:],v) for k,v in iac.__class__.__dict__.iteritems() 
+        #       if k.startswith("get_"))
+        # self.iac_foo = IdempotentAccessorTestClass(name, **kwargs)
+        # self.assertEqual(expected, self.iac_foo.keys())
         assert False # TODO: implement your test here
 
     def test_new(self):
-        # idempotent_accessor = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, idempotent_accessor.new(key))
-        assert False # TODO: implement your test here
+        self.assertNotEqual(self.iac_foo.new("uniquestr"), self.iac_foo.new("uniquestr"))
+        self.assertNotEqual(self.iac_foo.new("uniquestr"), self.iac_foo["uniquestr"])
 
+    @unittest.skip("this idea isn't complete yet")
     def test_next(self):
-        # idempotent_accessor = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, idempotent_accessor.next())
+        # self.iac_foo = IdempotentAccessorTestClass(name, **kwargs)
+        # self.assertEqual(expected, self.iac_foo.next())
         assert False # TODO: implement your test here
 
     def test_values(self):
-        # idempotent_accessor = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, idempotent_accessor.values())
+        # self.iac_foo = IdempotentAccessorTestClass(name, **kwargs)
+        # self.assertEqual(expected, self.iac_foo.values())
         assert False # TODO: implement your test here
 
 if __name__ == '__main__':
