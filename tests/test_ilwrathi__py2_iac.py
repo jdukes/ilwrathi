@@ -17,6 +17,13 @@ if _version_info.major == 2:
     except ValueError:
         path.insert(0,'.')
         from _py2 import _IACTestMetaClass
+elif _version_info.major == 3:
+    try:
+        from ._py3 import _IACTestMetaClass
+    except ValueError:
+        path.insert(0,'.')
+        from _py3 import _IACTestMetaClass
+    
 
 class IdempotentAccessorTestClass(IdempotentAccessor):
     __metaclass__ = _IACTestMetaClass
@@ -52,7 +59,7 @@ class TestIdempotentAccessor(unittest.TestCase):
 
     def setUp(self):
         self.iac_foo = IdempotentAccessorTestClass("foo")
-
+        
     def test___add__(self):
         self.assertEqual("foobar", self.iac_foo + "bar")
 
