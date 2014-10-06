@@ -8,31 +8,25 @@ from rstr import word
 
 from sys import path
 path.insert(0,'..')
-from ilwrathi import IdempotentAccessor
 
 from sys import version_info as _version_info
+from ._common import _IACTestMetaClass
+    
 if _version_info.major == 2:
     try:
-        from ._py2 import _IACTestMetaClass
+        from ._py2 import VerDepdIacTestClass
     except ValueError:
         path.insert(0,'.')
-        from _py2 import _IACTestMetaClass
+        from _py2 import VerDepdIacTestClass
 elif _version_info.major == 3:
     try:
-        from ._py3 import _IACTestMetaClass
+        from ._py3 import VerDepdIacTestClass
     except ValueError:
         path.insert(0,'.')
-        from _py3 import _IACTestMetaClass
-    
+        from _py3 import VerDepdIacTestClass
 
-class IdempotentAccessorTestClass(IdempotentAccessor):
+class IdempotentAccessorTestClass(VerDepdIacTestClass):
     __metaclass__ = _IACTestMetaClass
-
-    def setup(self):
-        for k,v in self.__class__.__dict__.iteritems():
-            if type(v) == types.FunctionType:
-                self.__dict__[k + "_executed"] = False
-        self._set_executed("setup")
 
     def _set_executed(self, method):
         #print "executing for method %s" % method
