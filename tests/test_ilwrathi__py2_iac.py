@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+#TODO: add verbose messages for each assert to describe why
+
 import unittest
 import types
 
@@ -25,10 +28,11 @@ class IdempotentAccessorTestClass(IdempotentAccessor):
         self._set_executed("setup")
 
     def _set_executed(self, method):
-        print "executing for method %s" % method
+        #print "executing for method %s" % method
         self.__dict__[method+"_executed"] = True
 
     def get_uniquestr(self):
+        self.get_uniquestr_executed = True
         return word(10)
 
     def get_spam(self):
@@ -70,15 +74,18 @@ class TestIdempotentAccessor(unittest.TestCase):
         self.assertTrue(self.iac_foo.get_spam_executed)
         self.assertTrue(self.iac_foo.get_eggs_executed)
         for i in ["spam","eggs","spamandeggs"]:
-            self.assertIn(i,self.iac_foo._cur_values)
+            self.assertIn(i, self.iac_foo._cur_values)
+            func = self.iac_foo.__class__.__dict__["get_" + i]
+            self.assertEquals(self.iac_foo[i],
+                              func(self.iac_foo))
 
-    def test___init__unique_test(self):
+    def test___init__test(self):
+        self.assertTrue(self.iac_foo.setup_executed, 
+                        msg="setup failed to execute")
         iac_bar = IdempotentAccessorTestClass("bar")
         self.assertNotEquals(self.iac_foo["uniquestr"], 
-                             iac_bar["uniquestr"])
-
-    def test___init__setup_test(self):
-        self.assertTrue(self.iac_foo.setup_executed)
+                             iac_bar["uniquestr"],
+                             msg="instances are not unique")
 
     @unittest.skip("this idea isn't complete yet")
     def test___iter__(self):
@@ -95,7 +102,6 @@ class TestIdempotentAccessor(unittest.TestCase):
         self.assertEqual(comp, repr(self.iac_foo))
 
     def test___setitem__(self):
-        #why is this failing???
         self.iac_foo["spam"] = "ignored"
         self.assertTrue(self.iac_foo.set_spam_executed)
 
@@ -107,34 +113,45 @@ class TestIdempotentAccessor(unittest.TestCase):
         self.assertEquals(self.iac_foo._cur_values, {})
 
     def test_items(self):
-        #this test should check that the function blah.get_<key> is
-        #the same as key for each key
-        assert False
-        #expected = self.iac_foo.items()
-        #self.assertEqual(expected, self.iac_foo.items())
+        expected = [('eggs', 'eggs'),
+                    ('spamandeggs', 'spam and eggs relies on spam and eggs'),
+                    ('spam', 'spam')]
+        self.assertEqual(expected, self.iac_foo.items()[:-1])
 
     def test_iteritems(self):
-        #could use a better test
-        assert False
         self.assertEqual(self.iac_foo.items(), 
                          [(k,v) for k,v in self.iac_foo.iteritems()])
 
     def test_iterkeys(self):
-        # self.iac_foo = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, self.iac_foo.iterkeys())
-        assert False # TODO: implement your test here
+        items = self.iac_foo.__class__.__dict__.iteritems() 
+        expected = dict( (k[4:],v) for k,v in items if k.startswith("get_"))
+        self.assertEqual(sorted(expected.keys()), 
+                         sorted([k for k in self.iac_foo.iterkeys()]), 
+                         msg="keys are missing")
 
     def test_itervalues(self):
-        # self.iac_foo = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, self.iac_foo.itervalues())
-        assert False # TODO: implement your test here
+        iac = IdempotentAccessorTestClass("foo")
+        assert not iac._cur_values, "test setup falid"
+        expected = ['eggs', 'spam and eggs relies on spam and eggs', 'spam']
+        msg = "values didn't match the expected set"
+        self.assertEqual(expected, 
+                         [v for v in iac.itervalues()][:-1])
+        [ v for v in iac.itervalues()]
+        for k in iac.keys():
+            variable = "get_" + k + "_executed"
+            executed = iac.__dict__[variable]
+            self.assertTrue(executed, msg="%s was %s" % (variable, executed))
+        msg = "Two execs should always return the same value set"
+        self.assertEqual([v for v in iac.itervalues()],
+                         [v for v in iac.itervalues()],
+                         msg=msg)        
 
     def test_keys(self):
-        # dict( (k[4:],v) for k,v in iac.__class__.__dict__.iteritems() 
-        #       if k.startswith("get_"))
-        # self.iac_foo = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, self.iac_foo.keys())
-        assert False # TODO: implement your test here
+        items = self.iac_foo.__class__.__dict__.iteritems() 
+        expected = dict( (k[4:],v) for k,v in items if k.startswith("get_"))
+        self.assertEqual(sorted(expected.keys()),
+                         sorted(self.iac_foo.keys()),
+                         msg="keys are missing")
 
     def test_new(self):
         self.assertNotEqual(self.iac_foo.new("uniquestr"), self.iac_foo.new("uniquestr"))
@@ -147,9 +164,19 @@ class TestIdempotentAccessor(unittest.TestCase):
         assert False # TODO: implement your test here
 
     def test_values(self):
-        # self.iac_foo = IdempotentAccessorTestClass(name, **kwargs)
-        # self.assertEqual(expected, self.iac_foo.values())
-        assert False # TODO: implement your test here
+        iac = IdempotentAccessorTestClass("foo")
+        assert not iac._cur_values, "test setup falid"
+        expected = ['eggs', 'spam and eggs relies on spam and eggs', 'spam']
+        msg = "values didn't match the expected set"
+        self.assertEqual(expected, iac.values()[:-1], msg=msg)
+        for i in ["spam","eggs","spamandeggs","uniquestr"]:
+            functionname = "get_" + i + "_executed"
+            executed = iac.__dict__[functionname]
+            self.assertTrue(executed, msg="%s didn't execute" % functionname)
+        msg = "Two execs should always return the same value set"
+        self.assertEqual(iac.values(), iac.values(), msg=msg)
+                         
+        
 
 if __name__ == '__main__':
     unittest.main()

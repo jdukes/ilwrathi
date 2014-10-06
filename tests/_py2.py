@@ -2,10 +2,12 @@
 import types
 
 def mk_exec_setter(meth):
-    return lambda c, *args: c._set_executed(meth)
+    def func(cls, *args):
+        cls._set_executed(meth)
+        return True
+    return func
 
 class _IACTestMetaClass(type):
-    
 
     def __new__(meta, name, bases, dct):
         update_dict = {}
@@ -16,7 +18,6 @@ class _IACTestMetaClass(type):
                     meth = m + key
                     #lambda didn't work... no idea why. look in to this
                     update_dict[meth] = mk_exec_setter(meth)
-        print update_dict
         dct.update(update_dict)
         cls =  super(_IACTestMetaClass, meta).__new__(meta,
                                                       name,
