@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+import git
 from setuptools import setup, find_packages
 from datetime import datetime #for version string
 
@@ -7,9 +9,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__),'ilwrathi'))
 import ilwrathi
 
 now = datetime.now()
+repo = git.Repo('.')
+commit = repo.log()[0]
 
 setup(name="ilwrathi",
-      version="%s%s.1a3" % (now.year, now.month), # PEP440 compliant
+      version="%s%s.1a%s" % (now.year, now.month, commit.id[:8]), # PEP440 compliant
       # The first section lets users know how old a module is, the
       # second lets the user compare relative versions of the same age.
       description="A framework for building pen test tools",
