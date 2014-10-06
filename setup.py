@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import git
+from __future__ import print_function
 from setuptools import setup, find_packages
 from datetime import datetime #for version string
 
@@ -9,11 +9,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__),'ilwrathi'))
 import ilwrathi
 
 now = datetime.now()
-repo = git.Repo('.')
-commit = repo.log()[0]
+
+def get_git_id():
+    try:
+        from git.repository import Repository
+        repo = Repository('.')
+        return repo.head.shortname
+    except ImportError:
+        print("`pip install pygit` for proper version id")
+        return "unknown"
 
 setup(name="ilwrathi",
-      version="%s%s.1a%s" % (now.year, now.month, commit.id[:8]), # PEP440 compliant
+      version="%s%s.1a%s" % (now.year, now.month, get_git_id()), # PEP440 compliant
       # The first section lets users know how old a module is, the
       # second lets the user compare relative versions of the same age.
       description="A framework for building pen test tools",
