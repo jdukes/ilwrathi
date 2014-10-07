@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from ._common import IACBase
 
 class IdempotentAccessor(IACBase):
