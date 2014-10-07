@@ -9,7 +9,8 @@ class IACBase(object, metaclass=_IACMeta):
 
     def items(self):
         """D.iteritems() -> an iterator over the (key, value) items of D"""
-        return [(k,v) for k,v in zip(self.keys(), self.values())]
+        #is this the behavior I want?
+        return dict((k,v) for k,v in zip(self.keys(), self.values())).items()
 
 
 
