@@ -6,7 +6,7 @@ import types
 
 from rstr import word
 
-from sys import path, version
+from sys import path, version_info
 path.insert(0,'..')
 from ilwrathi import IdempotentAccessor
 
@@ -137,10 +137,12 @@ class TestIdempotentAccessor(unittest.TestCase):
                     ('spam', 'spam')]
         self.assertEqual(sorted(expected), sorted(self.iac_foo.items())[:-1])
 
+    @unittest.skipIf(version_info.major == 3, "iter unneeded on 3")
     def test_iteritems(self):
         self.assertEqual(self.iac_foo.items(), 
                          [(k,v) for k,v in self.iac_foo.iteritems()])
 
+    @unittest.skipIf(version_info.major == 3, "iter unneeded on 3")
     def test_iterkeys(self):
         items = self.iac_foo.__class__.__dict__.iteritems() 
         expected = dict( (k[4:],v) for k,v in items 
@@ -150,7 +152,7 @@ class TestIdempotentAccessor(unittest.TestCase):
                          sorted([k for k in self.iac_foo.iterkeys()]), 
                          msg="keys are missing")
 
-    @unittest.skipIf(
+    @unittest.skipIf(version_info.major == 3, "iter unneeded on 3")
     def test_itervalues(self):
         assert not self.iac_foo._cur_values, "test setup falid"
         expected = ['eggs', 'spam and eggs relies on spam and eggs', 'spam']
