@@ -18,27 +18,7 @@ def mk_exec_setter(meth):
     return func
 
 
-class _MetaTestClass(type):
-
-    def __new__(meta, name, bases, dct):
-        update_dict = {}
-        for i in dct:
-            if i.startswith('get_'):
-                key = i[4:]
-                for m in ["set_", "check_","del_"]:
-                    meth = m + key
-                    #lambda didn't work... no idea why. look in to this
-                    update_dict[meth] = mk_exec_setter(meth)
-        dct.update(update_dict)
-        cls = super(_MetaTestClass, meta).__new__(meta,
-                                                  name,
-                                                  bases,
-                                                  dct)
-        return cls
-
-
 class IdempotentAccessorTestClass(IdempotentAccessor):
-    __metaclass__ = _MetaTestClass
 
     def _set_executed(self, method):
         #print "executing for method %s" % method
@@ -46,7 +26,13 @@ class IdempotentAccessorTestClass(IdempotentAccessor):
     
     def setup(self):
         for k,v in self.__class__.__dict__.items():
-            if type(v) == types.FunctionType:
+            if k.startswith('get_') and type(v) == types.FunctionType:
+                key = k[4:]
+                for m in ["set_", "check_","del_"]:
+                    meth = m + key
+                    #lambda didn't work... no idea why. look in to this
+                    setattr(self, meth, mk_exec_setter(meth))
+                    setattr(self, meth + "_executed", False)
                 setattr(self, k + "_executed", False)
         self.setup_executed = True
 
@@ -157,9 +143,9 @@ class TestIdempotentAccessor(unittest.TestCase):
         assert not self.iac_foo._cur_values, "test setup falid"
         expected = ['eggs', 'spam and eggs relies on spam and eggs', 'spam']
         msg = "values didn't match the expected set"
-        self.assertEqual(sorted(expected), 
-                         sorted([v for v in self.iac_foo.itervalues()][:-1]))
-        [ v for v in self.iac_foo.itervalues()]
+        values = [v for v in self.iac_foo.itervalues()]
+        for e in expected:
+            self.assertIn(e, values)
         for k in self.iac_foo.keys():
             variable = "get_" + k + "_executed"
             executed = self.iac_foo.__dict__[variable]
@@ -194,8 +180,8 @@ class TestIdempotentAccessor(unittest.TestCase):
         assert not self.iac_foo._cur_values, "test setup falid"
         expected = ['eggs', 'spam and eggs relies on spam and eggs', 'spam']
         msg = "values didn't match the expected set"
-        self.assertEqual(sorted(expected),
-                         sorted(self.iac_foo.values()[:-1]), msg=msg)
+        for e in expected:
+            self.assertIn(e, self.iac_foo.values(), msg=msg)
         for i in ["spam","eggs","spamandeggs","uniquestr"]:
             functionname = "get_" + i + "_executed"
             executed = self.iac_foo.__dict__[functionname]

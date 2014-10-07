@@ -3,8 +3,22 @@
 #TODO: serialization
 #TODO: update doc
 from types import FunctionType as _fntype
+from sys import version_info as _version_info
+
+class _IACMeta(type):
+    
+    def __new__(meta, name, bases, dct):
+        keys = [k[4:] for k,v in dct.items()
+                if k.startswith('get_') and type(v) == _fntype]
+        dct["_keys"] = keys
+        return super(_IACMeta, meta).__new__(meta,
+                                             name,
+                                             bases,
+                                             dct)
+
 
 class IdempotentAccessor(object):
+    __metaclass__ = _IACMeta
     """The IdempotentAccessor base class is an idempotent store for values.
 
     This class acts like a dictionary. When a key is referenced, the
@@ -117,7 +131,7 @@ class IdempotentAccessor(object):
         """
         if key in self._cur_values:
             value = self._cur_values[key]
-            if not getattr(self, "check_" + key, lambda val:True)(value):
+            if not getattr(self, "check_" + key, lambda cls, val:True)(self, value):
                 return self._get_and_update_entry(key)
             return value
         else:
@@ -129,13 +143,11 @@ class IdempotentAccessor(object):
     def iterkeys(self):
         """D.iterkeys() -> an iterator over the keys of D"""
         #This should be done with a metaclass
-        return (k[4:] for k,v in self.__class__.__dict__.iteritems()
-                if k.startswith("get_")
-                and type(v) == _fntype)
+        return (k for k in self._keys)
     
     def keys(self):
         """D.keys() -> list of D's keys"""
-        return [k for k in self.iterkeys()]
+        return self._keys
 
     def itervalues(self):
         """D.values() -> list of D's values"""
@@ -179,7 +191,8 @@ class IdempotentAccessor(object):
         x[i]=x.set_<i>(y). If not, simply set x[i]=y.
         """        
         self._archive_vals()
-        self._cur_values[key] = getattr(self, "set_" + key, lambda v: v)(value)
+        self._cur_values[key] = getattr(self, "set_" + key, 
+                                        lambda cls, v: v)(self, value)
 
     def __delitem__(self, key):
         """x.__delitem__(y) <==> del(x[y])
@@ -189,7 +202,7 @@ class IdempotentAccessor(object):
 
         """
         self._archive_vals()
-        getattr(self, "del_" + key, lambda: None)()
+        getattr(self, "del_" + key, lambda cls: None)(self)
         del(self._cur_values[key])
 
     def __str__(self):
