@@ -1,28 +1,6 @@
-#!/usr/bin/env python
-#TODO: set up python 2/3 meta class to handle "keys" and such
-#TODO: serialization
-#TODO: update doc
-from types import FunctionType as _fntype
-from sys import version_info as _version_info
+from ._common import IACBase
 
-
-class _IACMeta(type):
-    
-    def __new__(meta, name, bases, dct):
-        keys = [k[4:] for k,v in dct.items()
-                if k.startswith('get_') and type(v) == _fntype]
-        dct["_keys"] = keys
-        return super(_IACMeta, meta).__new__(meta,
-                                             name,
-                                             bases,
-                                             dct)
-
-if _version_info.major == 3:
-    from .._py3 import IACBase 
-else:
-    from .._py2 import IACBase 
-    
-class IdempotentAccessor(IACbase):
+class IdempotentAccessor(IACBase):
     """The IdempotentAccessor base class is an idempotent store for values.
 
     This class acts like a dictionary. When a key is referenced, the

@@ -70,7 +70,7 @@ class TestIdempotentAccessor(unittest.TestCase):
         self.assertIn("spam",self.iac_foo._cur_values)
         old_unique = self.iac_foo["uniquestr"]
         del(self.iac_foo["uniquestr"])
-        self.assertNotEquals(old_unique, self.iac_foo["uniquestr"])
+        self.assertNotEqual(old_unique, self.iac_foo["uniquestr"])
 
     def test___getitem__(self):
         self.assertEqual("spam and eggs relies on spam and eggs", 
@@ -81,16 +81,16 @@ class TestIdempotentAccessor(unittest.TestCase):
         for i in ["spam","eggs","spamandeggs"]:
             self.assertIn(i, self.iac_foo._cur_values)
             func = getattr(self.iac_foo,"get_" + i)
-            self.assertEquals(self.iac_foo[i],
+            self.assertEqual(self.iac_foo[i],
                               func())
 
     def test___init__test(self):
         self.assertTrue(self.iac_foo.setup_executed, 
                         msg="setup failed to execute")
         iac_bar = IdempotentAccessorTestClass("bar")
-        self.assertNotEquals(self.iac_foo["uniquestr"], 
-                             iac_bar["uniquestr"],
-                             msg="instances are not unique")
+        self.assertNotEqual(self.iac_foo["uniquestr"], 
+                            iac_bar["uniquestr"],
+                            msg="instances are not unique")
 
     @unittest.skip("this idea isn't complete yet")
     def test___iter__(self):
@@ -115,7 +115,7 @@ class TestIdempotentAccessor(unittest.TestCase):
 
     def test_clear(self):
         self.iac_foo.clear()
-        self.assertEquals(self.iac_foo._cur_values, {})
+        self.assertEqual(self.iac_foo._cur_values, {})
 
     def test_items(self):
         expected = [('eggs', 'eggs'),
@@ -156,7 +156,7 @@ class TestIdempotentAccessor(unittest.TestCase):
                          msg=msg)        
 
     def test_keys(self):
-        items = self.iac_foo.__class__.__dict__.iteritems() 
+        items = self.iac_foo.__class__.__dict__.items() 
         expected = dict( (k[4:],v) for k,v in items 
                          if k.startswith("get_")
                          and type(v) == types.FunctionType)
