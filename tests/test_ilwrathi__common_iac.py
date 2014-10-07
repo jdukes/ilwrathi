@@ -6,9 +6,10 @@ import types
 
 from rstr import word
 
-from sys import path
+from sys import path, version
 path.insert(0,'..')
 from ilwrathi import IdempotentAccessor
+
 
 def mk_exec_setter(meth):
     def func(cls, *args):
@@ -149,21 +150,21 @@ class TestIdempotentAccessor(unittest.TestCase):
                          sorted([k for k in self.iac_foo.iterkeys()]), 
                          msg="keys are missing")
 
+    @unittest.skipIf(
     def test_itervalues(self):
-        iac = IdempotentAccessorTestClass("foo")
-        assert not iac._cur_values, "test setup falid"
+        assert not self.iac_foo._cur_values, "test setup falid"
         expected = ['eggs', 'spam and eggs relies on spam and eggs', 'spam']
         msg = "values didn't match the expected set"
         self.assertEqual(sorted(expected), 
-                         sorted([v for v in iac.itervalues()][:-1]))
-        [ v for v in iac.itervalues()]
-        for k in iac.keys():
+                         sorted([v for v in self.iac_foo.itervalues()][:-1]))
+        [ v for v in self.iac_foo.itervalues()]
+        for k in self.iac_foo.keys():
             variable = "get_" + k + "_executed"
-            executed = iac.__dict__[variable]
+            executed = self.iac_foo.__dict__[variable]
             self.assertTrue(executed, msg="%s was %s" % (variable, executed))
         msg = "Two execs should always return the same value set"
-        self.assertEqual(sorted([v for v in iac.itervalues()]),
-                         sorted([v for v in iac.itervalues()]),
+        self.assertEqual(sorted([v for v in self.iac_foo.itervalues()]),
+                         sorted([v for v in self.iac_foo.itervalues()]),
                          msg=msg)        
 
     def test_keys(self):
@@ -176,8 +177,10 @@ class TestIdempotentAccessor(unittest.TestCase):
                          msg="keys are missing")
 
     def test_new(self):
-        self.assertNotEqual(self.iac_foo.new("uniquestr"), self.iac_foo.new("uniquestr"))
-        self.assertNotEqual(self.iac_foo.new("uniquestr"), self.iac_foo["uniquestr"])
+        self.assertNotEqual(self.iac_foo.new("uniquestr"), 
+                            self.iac_foo.new("uniquestr"))
+        self.assertNotEqual(self.iac_foo.new("uniquestr"), 
+                            self.iac_foo["uniquestr"])
 
     @unittest.skip("this idea isn't complete yet")
     def test_next(self):
@@ -186,17 +189,17 @@ class TestIdempotentAccessor(unittest.TestCase):
         assert False # TODO: implement your test here
 
     def test_values(self):
-        iac = IdempotentAccessorTestClass("foo")
-        assert not iac._cur_values, "test setup falid"
+        assert not self.iac_foo._cur_values, "test setup falid"
         expected = ['eggs', 'spam and eggs relies on spam and eggs', 'spam']
         msg = "values didn't match the expected set"
-        self.assertEqual(sorted(expected), sorted(iac.values()[:-1]), msg=msg)
+        self.assertEqual(sorted(expected),
+                         sorted(self.iac_foo.values()[:-1]), msg=msg)
         for i in ["spam","eggs","spamandeggs","uniquestr"]:
             functionname = "get_" + i + "_executed"
-            executed = iac.__dict__[functionname]
+            executed = self.iac_foo.__dict__[functionname]
             self.assertTrue(executed, msg="%s didn't execute" % functionname)
         msg = "Two execs should always return the same value set"
-        self.assertEqual(iac.values(), iac.values(), msg=msg)
+        self.assertEqual(self.iac_foo.values(), self.iac_foo.values(), msg=msg)
                          
         
 
