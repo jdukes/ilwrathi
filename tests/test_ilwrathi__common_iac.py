@@ -8,29 +8,46 @@ from rstr import word
 
 from sys import path
 path.insert(0,'..')
+from ilwrathi import IdempotentAccessor
 
-from sys import version_info as _version_info
-from ._common import _IACTestMetaClass
-    
-if _version_info.major == 2:
-    try:
-        from ._py2 import VerDepdIacTestClass
-    except ValueError:
-        path.insert(0,'.')
-        from _py2 import VerDepdIacTestClass
-elif _version_info.major == 3:
-    try:
-        from ._py3 import VerDepdIacTestClass
-    except ValueError:
-        path.insert(0,'.')
-        from _py3 import VerDepdIacTestClass
+def mk_exec_setter(meth):
+    def func(cls, *args):
+        cls._set_executed(meth)
+        return True
+    return func
 
-class IdempotentAccessorTestClass(VerDepdIacTestClass):
-    __metaclass__ = _IACTestMetaClass
+
+class _MetaTestClass(type):
+
+    def __new__(meta, name, bases, dct):
+        update_dict = {}
+        for i in dct:
+            if i.startswith('get_'):
+                key = i[4:]
+                for m in ["set_", "check_","del_"]:
+                    meth = m + key
+                    #lambda didn't work... no idea why. look in to this
+                    update_dict[meth] = mk_exec_setter(meth)
+        dct.update(update_dict)
+        cls = super(_MetaTestClass, meta).__new__(meta,
+                                                  name,
+                                                  bases,
+                                                  dct)
+        return cls
+
+
+class IdempotentAccessorTestClass(IdempotentAccessor):
+    __metaclass__ = _MetaTestClass
 
     def _set_executed(self, method):
         #print "executing for method %s" % method
-        self.__dict__[method+"_executed"] = True
+        setattr(self, method+"_executed", True)
+    
+    def setup(self):
+        for k,v in self.__class__.__dict__.items():
+            if type(v) == types.FunctionType:
+                setattr(self, k + "_executed", False)
+        self.setup_executed = True
 
     def get_uniquestr(self):
         self.get_uniquestr_executed = True
@@ -76,9 +93,9 @@ class TestIdempotentAccessor(unittest.TestCase):
         self.assertTrue(self.iac_foo.get_eggs_executed)
         for i in ["spam","eggs","spamandeggs"]:
             self.assertIn(i, self.iac_foo._cur_values)
-            func = self.iac_foo.__class__.__dict__["get_" + i]
+            func = getattr(self.iac_foo,"get_" + i)
             self.assertEquals(self.iac_foo[i],
-                              func(self.iac_foo))
+                              func())
 
     def test___init__test(self):
         self.assertTrue(self.iac_foo.setup_executed, 
@@ -117,7 +134,7 @@ class TestIdempotentAccessor(unittest.TestCase):
         expected = [('eggs', 'eggs'),
                     ('spamandeggs', 'spam and eggs relies on spam and eggs'),
                     ('spam', 'spam')]
-        self.assertEqual(expected, self.iac_foo.items()[:-1])
+        self.assertEqual(sorted(expected), sorted(self.iac_foo.items())[:-1])
 
     def test_iteritems(self):
         self.assertEqual(self.iac_foo.items(), 
@@ -125,7 +142,9 @@ class TestIdempotentAccessor(unittest.TestCase):
 
     def test_iterkeys(self):
         items = self.iac_foo.__class__.__dict__.iteritems() 
-        expected = dict( (k[4:],v) for k,v in items if k.startswith("get_"))
+        expected = dict( (k[4:],v) for k,v in items 
+                         if k.startswith("get_")
+                         and type(v) == types.FunctionType)
         self.assertEqual(sorted(expected.keys()), 
                          sorted([k for k in self.iac_foo.iterkeys()]), 
                          msg="keys are missing")
@@ -135,21 +154,23 @@ class TestIdempotentAccessor(unittest.TestCase):
         assert not iac._cur_values, "test setup falid"
         expected = ['eggs', 'spam and eggs relies on spam and eggs', 'spam']
         msg = "values didn't match the expected set"
-        self.assertEqual(expected, 
-                         [v for v in iac.itervalues()][:-1])
+        self.assertEqual(sorted(expected), 
+                         sorted([v for v in iac.itervalues()][:-1]))
         [ v for v in iac.itervalues()]
         for k in iac.keys():
             variable = "get_" + k + "_executed"
             executed = iac.__dict__[variable]
             self.assertTrue(executed, msg="%s was %s" % (variable, executed))
         msg = "Two execs should always return the same value set"
-        self.assertEqual([v for v in iac.itervalues()],
-                         [v for v in iac.itervalues()],
+        self.assertEqual(sorted([v for v in iac.itervalues()]),
+                         sorted([v for v in iac.itervalues()]),
                          msg=msg)        
 
     def test_keys(self):
         items = self.iac_foo.__class__.__dict__.iteritems() 
-        expected = dict( (k[4:],v) for k,v in items if k.startswith("get_"))
+        expected = dict( (k[4:],v) for k,v in items 
+                         if k.startswith("get_")
+                         and type(v) == types.FunctionType)
         self.assertEqual(sorted(expected.keys()),
                          sorted(self.iac_foo.keys()),
                          msg="keys are missing")
@@ -169,7 +190,7 @@ class TestIdempotentAccessor(unittest.TestCase):
         assert not iac._cur_values, "test setup falid"
         expected = ['eggs', 'spam and eggs relies on spam and eggs', 'spam']
         msg = "values didn't match the expected set"
-        self.assertEqual(expected, iac.values()[:-1], msg=msg)
+        self.assertEqual(sorted(expected), sorted(iac.values()[:-1]), msg=msg)
         for i in ["spam","eggs","spamandeggs","uniquestr"]:
             functionname = "get_" + i + "_executed"
             executed = iac.__dict__[functionname]

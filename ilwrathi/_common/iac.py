@@ -2,6 +2,7 @@
 #TODO: set up python 2/3 meta class to handle "keys" and such
 #TODO: serialization
 #TODO: update doc
+from types import FunctionType as _fntype
 
 class IdempotentAccessor(object):
     """The IdempotentAccessor base class is an idempotent store for values.
@@ -95,14 +96,13 @@ class IdempotentAccessor(object):
     #make this more meta
     #http://eli.thegreenplace.net/2011/08/14/python-metaclasses-by-example/
 
-    def __init__(self, name=None, **kwargs):
+    def __init__(self, name=None, *args, **kwargs):
         self.name = name
         self._cur_values = {}
         self.history = []
-        if 'setup' in self.__class__.__dict__:
-            #get function sig of _setup if exists and merge with func
-            #sig of init
-            self.setup(**kwargs)
+        #get function sig of _setup if exists and merge with func
+        #sig of init
+        getattr(self, 'setup', lambda *a, **kw:True)(*args, **kwargs)
 
     def __getitem__(self, key):
         """x.__getitem__(y) <==> x[y]
@@ -117,21 +117,21 @@ class IdempotentAccessor(object):
         """
         if key in self._cur_values:
             value = self._cur_values[key]
-            if ("check_" + key) in self.__class__.__dict__:
-                if not self.__class__.__dict__["check_" + key](self, value):
-                    return self._get_and_update_entry(key)
+            if not getattr(self, "check_" + key, lambda val:True)(value):
+                return self._get_and_update_entry(key)
             return value
         else:
             try:
                 return self._get_and_update_entry(key)
-            except KeyError:
+            except AttributeError:
                 raise KeyError(key)
 
     def iterkeys(self):
         """D.iterkeys() -> an iterator over the keys of D"""
-        #there's  better way to do this
-        return (i[4:] for i in self.__class__.__dict__
-                 if i.startswith("get_"))
+        #This should be done with a metaclass
+        return (k[4:] for k,v in self.__class__.__dict__.iteritems()
+                if k.startswith("get_")
+                and type(v) == _fntype)
     
     def keys(self):
         """D.keys() -> list of D's keys"""
@@ -156,7 +156,7 @@ class IdempotentAccessor(object):
     def new(self, key):
         """Performs a similar function to x.__getitem__(y) without caching"""
         try:
-            val =  self.__class__.__dict__["get_" + key](self)
+            val =  getattr(self,"get_" + key)()
             self.history.append(val)
             return val
         except KeyError:
@@ -168,7 +168,7 @@ class IdempotentAccessor(object):
         Archives old values and gets a new copy of `key`.
         """
         self._archive_vals()
-        val = self.__class__.__dict__["get_" + key](self)
+        val = getattr(self,"get_" + key)()
         self._cur_values[key] = val
         return val
 
@@ -179,10 +179,7 @@ class IdempotentAccessor(object):
         x[i]=x.set_<i>(y). If not, simply set x[i]=y.
         """        
         self._archive_vals()
-        if "set_" + key in self.__class__.__dict__:
-            self._cur_values[key] = self.__class__.__dict__["set_" + key](self, value)
-        else:
-            self._cur_values[key] = value
+        self._cur_values[key] = getattr(self, "set_" + key, lambda v: v)(value)
 
     def __delitem__(self, key):
         """x.__delitem__(y) <==> del(x[y])
@@ -192,8 +189,7 @@ class IdempotentAccessor(object):
 
         """
         self._archive_vals()
-        if "del_" + key in self.__class__.__dict__:
-            self.__class__.__dict__["del_" + key](self)
+        getattr(self, "del_" + key, lambda: None)()
         del(self._cur_values[key])
 
     def __str__(self):
