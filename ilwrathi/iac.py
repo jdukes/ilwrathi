@@ -100,7 +100,7 @@ class IdempotentAccessor(IACBase):
         self.history = []
         #get function sig of _setup if exists and merge with func
         #sig of init
-        getattr(self, 'setup', lambda *a, **kw:True)(*args, **kwargs)
+        getattr(self, 'setup', lambda *a, **kw:True)(self, *args, **kwargs)
 
     def __getitem__(self, key):
         """x.__getitem__(y) <==> x[y]
