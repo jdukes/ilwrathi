@@ -24,7 +24,8 @@ class IdempotentAccessorTestClass(IdempotentAccessor):
         #print "executing for method %s" % method
         setattr(self, method+"_executed", True)
     
-    def setup(self):
+    def __init__(self, name=None, *args, **kwargs):
+        self.name = name
         for k,v in self.__class__.__dict__.items():
             if k.startswith('get_') and type(v) == types.FunctionType:
                 key = k[4:]
@@ -34,7 +35,7 @@ class IdempotentAccessorTestClass(IdempotentAccessor):
                     setattr(self, meth, mk_exec_setter(meth))
                     setattr(self, meth + "_executed", False)
                 setattr(self, k + "_executed", False)
-        self.setup_executed = True
+        self.my_init_executed = True
 
     def get_uniquestr(self):
         self.get_uniquestr_executed = True
@@ -85,7 +86,7 @@ class TestIdempotentAccessor(unittest.TestCase):
                               func())
 
     def test___init__test(self):
-        self.assertTrue(self.iac_foo.setup_executed, 
+        self.assertTrue(self.iac_foo.my_init_executed, 
                         msg="setup failed to execute")
         iac_bar = IdempotentAccessorTestClass("bar")
         self.assertNotEqual(self.iac_foo["uniquestr"], 

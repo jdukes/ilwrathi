@@ -91,16 +91,10 @@ class IdempotentAccessor(IACBase):
     target system when del(iac[key]) is called. 
 
     """ 
-    #make this more meta
     #http://eli.thegreenplace.net/2011/08/14/python-metaclasses-by-example/
 
     def __init__(self, name=None, *args, **kwargs):
         self.name = name
-        self._cur_values = {}
-        self.history = []
-        #get function sig of _setup if exists and merge with func
-        #sig of init
-        getattr(self, 'setup', lambda *a, **kw:True)(self, *args, **kwargs)
 
     def __getitem__(self, key):
         """x.__getitem__(y) <==> x[y]
@@ -190,7 +184,7 @@ class IdempotentAccessor(IACBase):
         
     def __repr__(self):
         return "<%s '%s': %s>" % (self.__class__.__name__,
-                                  self.name,
+                                  str(self.name),
                                   str(self._cur_values))
 
     def clear(self):
