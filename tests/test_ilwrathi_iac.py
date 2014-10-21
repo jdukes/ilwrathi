@@ -3,6 +3,7 @@
 
 import unittest
 import types
+import inspect
 
 from rstr import word
 
@@ -91,7 +92,10 @@ class TestIdempotentAccessor(unittest.TestCase):
         iac_bar = IdempotentAccessorTestClass("bar")
         self.assertNotEqual(self.iac_foo["uniquestr"], 
                             iac_bar["uniquestr"],
-                            msg="instances are not unique")
+                            msg="intsances are not unique")
+
+    def test___init__funcdef_test(self):
+        assert False, "ensure that __init__ doesn't loose it's argspec"
 
     @unittest.skip("this idea isn't complete yet")
     def test___iter__(self):
