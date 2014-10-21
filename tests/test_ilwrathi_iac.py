@@ -11,13 +11,6 @@ path.insert(0,'..')
 from ilwrathi import IdempotentAccessor
 
 
-def mk_exec_setter(meth):
-    def func(cls, *args):
-        cls._set_executed(meth)
-        return True
-    return func
-
-
 class IdempotentAccessorTestClass(IdempotentAccessor):
 
     def _set_executed(self, method):
@@ -25,6 +18,11 @@ class IdempotentAccessorTestClass(IdempotentAccessor):
         setattr(self, method+"_executed", True)
     
     def __init__(self, name=None, *args, **kwargs):
+        def mk_exec_setter(meth):
+            def func(*args):
+                self._set_executed(meth)
+                return True
+            return func
         self.name = name
         for k,v in self.__class__.__dict__.items():
             if k.startswith('get_') and type(v) == types.FunctionType:

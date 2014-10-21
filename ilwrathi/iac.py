@@ -109,7 +109,7 @@ class IdempotentAccessor(IACBase):
         """
         if key in self._cur_values:
             value = self._cur_values[key]
-            if not getattr(self, "check_" + key, lambda cls, val:True)(self, value):
+            if not getattr(self, "check_" + key, lambda val:True)(value):
                 return self._get_and_update_entry(key)
             return value
         else:
@@ -160,7 +160,7 @@ class IdempotentAccessor(IACBase):
 
         """
         self._archive_vals()
-        getattr(self, "del_" + key, lambda cls: None)(self)
+        getattr(self, "del_" + key, lambda cls: None)()
         del(self._cur_values[key])
 
     def __str__(self):
