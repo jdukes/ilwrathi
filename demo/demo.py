@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from sys import path
 path.insert(0,'..')
 from ilwrathi import IdempotentAccessor
@@ -8,15 +9,16 @@ from random import randint
 try:
     import rstr
 except ImportError:
-    print "easy_install rstr"
+    print("easy_install rstr")
     raise
 
 URL = "http://petstore.swagger.wordnik.com:80/api"
 
 class PetItempotentAccessor(IdempotentAccessor):
 
-    def _setup(self, name="petItempotentAccessor"):
-        self.client = PetStoreClient(URL)
+    def __init__(self, url):
+        self.name = "petstore at " + url
+        self.client = PetStoreClient(url)
         
     def get_pet(self):
         pet_d = {"id": randint(100, 500),
@@ -74,5 +76,5 @@ class PetItempotentAccessor(IdempotentAccessor):
         r = self.client.get_store_order(value["id"])
         return r.status_code == 200
 
-#p = PetItempotentAccessor()
-#p.client.delete_store_order(p["order"]["id"])
+
+p = PetItempotentAccessor(URL)

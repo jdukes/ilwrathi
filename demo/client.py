@@ -1,13 +1,14 @@
 #!/usr/bin/env python
-#shitty fast demo
+#client for shitty demo
 
+from __future__ import print_function
 import itertools
 import json
 
 try:
     import requests
 except ImportError:
-    print "pip install requests"
+    print("pip install requests")
     raise
 
 #proxies = {'http':'http://localhost:8080'}
@@ -61,3 +62,5 @@ class PetStoreClient(object):
 
     def __add_history(self, response, *args, **kwargs):
         self.history.append(response)
+
+
