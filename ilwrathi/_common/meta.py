@@ -11,13 +11,12 @@ class _IACMeta(type):
                                              bases,
                                              dct)
     def __init__(cls, name, bases, dct):
-        #oh god
+        #oh god, bad magic
         old_init = cls.__init__
         def init(instance, *args, **kwargs):
             instance._cur_values = {}
             instance.history = []
-            if not "name" in instance.__dict__:
-                instance.name = "undefined"
+            instance.name = kwargs.get("name") or "undefined"
             old_init(instance, *args, **kwargs)
         cls.__init__ = init
         super(_IACMeta, cls).__init__(name, bases, dct)
