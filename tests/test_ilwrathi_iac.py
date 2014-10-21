@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 #TODO: add verbose messages for each assert to describe why
-
 import unittest
 import types
 import inspect
@@ -94,8 +93,11 @@ class TestIdempotentAccessor(unittest.TestCase):
                             iac_bar["uniquestr"],
                             msg="intsances are not unique")
 
+    @unittest.skipIf(version_info.major < 3, 
+                     "This is a pain in the ass on py2")
     def test___init__funcdef_test(self):
-        assert False, "ensure that __init__ doesn't loose it's argspec"
+        s = inspect.signature(self.iac_foo.__init__)
+        self.assertIn("name", s.parameters)
 
     @unittest.skip("this idea isn't complete yet")
     def test___iter__(self):

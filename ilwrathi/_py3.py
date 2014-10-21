@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
-from ._common.meta import _IACMeta
+from types import FunctionType as _fntype
 from inspect import signature
 
-class _IACMetaPy3(_IACMeta):
+class _IACMeta(type):
+
+    def __new__(meta, name, bases, dct):
+        #may be able to share this with py2
+        keys = [k[4:] for k,v in dct.items()
+                if k.startswith('get_') and type(v) == _fntype]
+        dct["_keys"] = keys
+        return super(_IACMeta, meta).__new__(meta,
+                                             name,
+                                             bases,
+                                             dct)
     
     def __init__(cls, name, bases, dct):
         old_init = cls.__init__
@@ -16,7 +26,7 @@ class _IACMetaPy3(_IACMeta):
         super(_IACMeta, cls).__init__(name, bases, dct)
 
 
-class IACBase(object, metaclass=_IACMetaPy3):
+class IACBase(object, metaclass=_IACMeta):
 
     def values(self):
         """D.values() -> list of D's values"""
