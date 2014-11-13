@@ -1,5 +1,8 @@
 * Fix git problem for builds
 * Add doctest and unittest
+* Add doctest to unittest
+* merge selenium brsh convinience wrappers in
+** make a function that turns a requests request in to a selenium request?
 * add code for attacking docker images/vm
   garland/dvwa
   dvws

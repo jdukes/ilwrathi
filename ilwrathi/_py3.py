@@ -37,5 +37,6 @@ class IACBase(object, metaclass=_IACMeta):
         #is this the behavior I want?
         return dict((k,v) for k,v in zip(self.keys(), self.values())).items()
 
+#hook __setattr__ to check for "get_" added to keys 
 
 
