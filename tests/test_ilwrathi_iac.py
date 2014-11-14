@@ -13,10 +13,6 @@ from ilwrathi import IdempotentAccessor
 
 class IdempotentAccessorTestClass(IdempotentAccessor):
 
-    def _set_executed(self, method):
-        #print "executing for method %s" % method
-        setattr(self, method+"_executed", True)
-    
     def __init__(self, name=None, *args, **kwargs):
         def mk_exec_setter(meth):
             def func(*args):
@@ -24,16 +20,20 @@ class IdempotentAccessorTestClass(IdempotentAccessor):
                 return True
             return func
         self.name = name
-        for k,v in self.__class__.__dict__.items():
-            if k.startswith('get_') and type(v) == types.FunctionType:
-                key = k[4:]
+        for key in self._keys:
                 for m in ["set_", "check_","del_"]:
                     meth = m + key
                     #lambda didn't work... no idea why. look in to this
                     setattr(self, meth, mk_exec_setter(meth))
                     setattr(self, meth + "_executed", False)
-                setattr(self, k + "_executed", False)
+                setattr(self, key + "_executed", False)
         self.my_init_executed = True
+
+    def _set_executed(self, method):
+        #print "executing for method %s" % method
+        setattr(self, method+"_executed", True)
+    
+
 
     def get_uniquestr(self):
         self.get_uniquestr_executed = True
@@ -135,11 +135,7 @@ class TestIdempotentAccessor(unittest.TestCase):
 
     @unittest.skipIf(version_info.major == 3, "iter unneeded on 3")
     def test_iterkeys(self):
-        items = self.iac_foo.__class__.__dict__.iteritems() 
-        expected = dict( (k[4:],v) for k,v in items 
-                         if k.startswith("get_")
-                         and type(v) == types.FunctionType)
-        self.assertEqual(sorted(expected.keys()), 
+        self.assertEqual(sorted(self.iac_foo._keys), 
                          sorted([k for k in self.iac_foo.iterkeys()]), 
                          msg="keys are missing")
 
