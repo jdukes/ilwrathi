@@ -12,6 +12,7 @@ from ilwrathi import IdempotentAccessor
 
 
 class IdempotentAccessorTestClass(IdempotentAccessor):
+    #need an actual set, check, del
 
     def __init__(self, name=None, *args, **kwargs):
         def mk_exec_setter(meth):
@@ -32,23 +33,21 @@ class IdempotentAccessorTestClass(IdempotentAccessor):
     def _set_executed(self, method):
         #print "executing for method %s" % method
         setattr(self, method+"_executed", True)
-    
-
 
     def get_uniquestr(self):
-        self.get_uniquestr_executed = True
+        self._get_uniquestr_executed = True
         return word(10)
 
     def get_spam(self):
-        self.get_spam_executed = True
+        self._get_spam_executed = True
         return "spam"
 
     def get_eggs(self):
-        self.get_eggs_executed = True
+        self._get_eggs_executed = True
         return "eggs"
 
     def get_spamandeggs(self):
-        self.get_spamandeggs_executed = True
+        self._get_spamandeggs_executed = True
         return "spam and eggs relies on %(spam)s and %(eggs)s" % self
 
 
@@ -70,13 +69,19 @@ class TestIdempotentAccessor(unittest.TestCase):
         old_unique = self.iac_foo["uniquestr"]
         del(self.iac_foo["uniquestr"])
         self.assertNotEqual(old_unique, self.iac_foo["uniquestr"])
+        try:
+            del(self.iac_foo["badkey"])
+        except KeyError:
+            pass
+        else:
+            assert False, "badkey deleted"
 
     def test___getitem__(self):
         self.assertEqual("spam and eggs relies on spam and eggs", 
                          self.iac_foo["spamandeggs"])
-        self.assertTrue(self.iac_foo.get_spamandeggs_executed)
-        self.assertTrue(self.iac_foo.get_spam_executed)
-        self.assertTrue(self.iac_foo.get_eggs_executed)
+        self.assertTrue(self.iac_foo._get_spamandeggs_executed)
+        self.assertTrue(self.iac_foo._get_spam_executed)
+        self.assertTrue(self.iac_foo._get_eggs_executed)
         for i in ["spam","eggs","spamandeggs"]:
             self.assertIn(i, self.iac_foo._cur_values)
             func = getattr(self.iac_foo,"get_" + i)
@@ -114,6 +119,14 @@ class TestIdempotentAccessor(unittest.TestCase):
     def test___setitem__(self):
         self.iac_foo["spam"] = "ignored"
         self.assertTrue(self.iac_foo.set_spam_executed)
+        try:
+            self.iac_foo["badkey"] = "ignored"
+        except KeyError:
+            pass
+        else:
+            assert False, "badkey added"
+
+    
 
     def test___str__(self):
         self.assertEqual("foo", str(self.iac_foo))
@@ -148,7 +161,7 @@ class TestIdempotentAccessor(unittest.TestCase):
         for e in expected:
             self.assertIn(e, values)
         for k in self.iac_foo.keys():
-            variable = "get_" + k + "_executed"
+            variable = "_get_" + k + "_executed"
             executed = self.iac_foo.__dict__[variable]
             self.assertTrue(executed, msg="%s was %s" % (variable, executed))
         msg = "Two execs should always return the same value set"
@@ -184,12 +197,18 @@ class TestIdempotentAccessor(unittest.TestCase):
         for e in expected:
             self.assertIn(e, self.iac_foo.values(), msg=msg)
         for i in ["spam","eggs","spamandeggs","uniquestr"]:
-            functionname = "get_" + i + "_executed"
+            functionname = "_get_" + i + "_executed"
             executed = self.iac_foo.__dict__[functionname]
             self.assertTrue(executed, msg="%s didn't execute" % functionname)
         msg = "Two execs should always return the same value set"
         self.assertEqual(self.iac_foo.values(), self.iac_foo.values(), msg=msg)
-                         
+
+    def test__setattr__(self):
+        setattr(self.iac_foo, "get_test",lambda cls: "test")
+        self.assertIn("test", self.iac_foo.keys())
+        self.assertEqual("test", self.iac_foo["test"])
+        delattr(self.iac_foo, "get_test")
+        
         
 
 if __name__ == '__main__':
