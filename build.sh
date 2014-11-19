@@ -10,6 +10,7 @@ done
 if [ $RET == 0 ]; then
     python setup.py sdist
     twine upload dist/*
+    python setup.py clean
 fi
 
 
