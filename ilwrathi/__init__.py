@@ -8,4 +8,4 @@ services with multiple dependances."""
 
 from .iac import IdempotentAccessor
 
-__all__ = ["IdempotentAccessor"]
+__all__ = ["IdempotentAccessor", "clients"]

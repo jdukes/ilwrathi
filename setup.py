@@ -19,7 +19,6 @@ def get_git_id():
     return out.strip(b'\n').decode('ascii')
 
 version="%s%s.2a%s" % (now.year, now.month, get_git_id()) # PEP440 compliant
-#print(version)
 
 setup(name="ilwrathi",
       version=version,
