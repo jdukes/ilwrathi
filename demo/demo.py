@@ -3,7 +3,7 @@ from __future__ import print_function
 from sys import path
 path.insert(0,'..')
 from ilwrathi import IdempotentAccessor
-from client import PetStoreClient
+from ilwrathi.clients import RestJSON
 from random import randint
 
 try:
@@ -18,7 +18,7 @@ class PetItempotentAccessor(IdempotentAccessor):
 
     def __init__(self, url):
         self.name = "petstore at " + url
-        self.client = PetStoreClient(url)
+        self.client = RestJSON(url)
         
     def get_pet(self):
         pet_d = {"id": randint(100, 500),
