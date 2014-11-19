@@ -10,17 +10,16 @@ import ilwrathi
 
 now = datetime.now()
 
+
 def get_git_id():
-    try:
-        from git.repository import Repository
-        repo = Repository('.')
-        return repo.head.shortname
-    except ImportError:
-        print("`pip install pygit` for proper version id")
-        return "unknown"
+    from subprocess import Popen, PIPE
+    p = Popen(['git', 'show','-s','HEAD','--format=%h'],
+              stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate()
+    return out.strip(b'\n')
 
 setup(name="ilwrathi",
-      version="%s%s.1a%s" % (now.year, now.month, get_git_id()), # PEP440 compliant
+      version="%s%s.2a%s" % (now.year, now.month, get_git_id()), # PEP440 compliant
       # The first section lets users know how old a module is, the
       # second lets the user compare relative versions of the same age.
       description="A framework for building pen test tools",
