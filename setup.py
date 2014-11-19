@@ -18,6 +18,7 @@ def get_git_id():
     out, err = p.communicate()
     return out.strip(b'\n')
 
+
 setup(name="ilwrathi",
       version="%s%s.2a%s" % (now.year, now.month, get_git_id()), # PEP440 compliant
       # The first section lets users know how old a module is, the
