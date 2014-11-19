@@ -13,6 +13,6 @@ done
 if [ $RET == 0 ]; then
     python setup.py clean
     python setup.py sdist
-    twine upload dist/*
+    #twine upload dist/*
 fi
 cd -

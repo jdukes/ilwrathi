@@ -16,11 +16,13 @@ def get_git_id():
     p = Popen(['git', 'show','-s','HEAD','--format=%h'],
               stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
-    return out.strip(b'\n')
+    return out.strip(b'\n').decode('ascii')
 
+version="%s%s.2a%s" % (now.year, now.month, get_git_id()) # PEP440 compliant
+#print(version)
 
 setup(name="ilwrathi",
-      version="%s%s.2a%s" % (now.year, now.month, get_git_id()), # PEP440 compliant
+      version=version,
       # The first section lets users know how old a module is, the
       # second lets the user compare relative versions of the same age.
       description="A framework for building pen test tools",
