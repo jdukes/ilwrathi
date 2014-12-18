@@ -5,9 +5,8 @@ import types
 import inspect
 
 from rstr import word
-
 from sys import path, version_info
-path.insert(0,'..')
+
 from ilwrathi import IdempotentAccessor
 
 
@@ -46,6 +45,13 @@ class IdempotentAccessorTestClass(IdempotentAccessor):
         self._get_eggs_executed = True
         return "eggs"
 
+    def get_failing(self):
+        self._get_failing_executed = True
+        return word(10)
+
+    def check_failing(self, val):
+        return False
+
     def get_spamandeggs(self):
         self._get_spamandeggs_executed = True
         return "spam and eggs relies on %(spam)s and %(eggs)s" % self
@@ -69,12 +75,8 @@ class TestIdempotentAccessor(unittest.TestCase):
         old_unique = self.iac_foo["uniquestr"]
         del(self.iac_foo["uniquestr"])
         self.assertNotEqual(old_unique, self.iac_foo["uniquestr"])
-        try:
+        with self.assertRaises(KeyError):
             del(self.iac_foo["badkey"])
-        except KeyError:
-            pass
-        else:
-            assert False, "badkey deleted"
 
     def test___getitem__(self):
         self.assertEqual("spam and eggs relies on spam and eggs", 
@@ -87,6 +89,10 @@ class TestIdempotentAccessor(unittest.TestCase):
             func = getattr(self.iac_foo,"get_" + i)
             self.assertEqual(self.iac_foo[i],
                               func())
+        self.assertNotEquals(self.iac_foo["failing"],
+                             self.iac_foo["failing"])
+
+            
 
     def test___init__test(self):
         self.assertTrue(self.iac_foo.my_init_executed, 
@@ -95,6 +101,7 @@ class TestIdempotentAccessor(unittest.TestCase):
         self.assertNotEqual(self.iac_foo["uniquestr"], 
                             iac_bar["uniquestr"],
                             msg="intsances are not unique")
+        self.assertEqual(iac_bar.name,"bar")
 
     @unittest.skipIf(version_info.major < 3, 
                      "This is a pain in the ass on py2")
@@ -119,14 +126,8 @@ class TestIdempotentAccessor(unittest.TestCase):
     def test___setitem__(self):
         self.iac_foo["spam"] = "ignored"
         self.assertTrue(self.iac_foo.set_spam_executed)
-        try:
+        with self.assertRaises(KeyError):
             self.iac_foo["badkey"] = "ignored"
-        except KeyError:
-            pass
-        else:
-            assert False, "badkey added"
-
-    
 
     def test___str__(self):
         self.assertEqual("foo", str(self.iac_foo))
@@ -183,6 +184,8 @@ class TestIdempotentAccessor(unittest.TestCase):
                             self.iac_foo.new("uniquestr"))
         self.assertNotEqual(self.iac_foo.new("uniquestr"), 
                             self.iac_foo["uniquestr"])
+        with self.assertRaises(KeyError):
+            self.iac_foo.new("notexists")
 
     @unittest.skip("this idea isn't complete yet")
     def test_next(self):
@@ -208,8 +211,7 @@ class TestIdempotentAccessor(unittest.TestCase):
         self.assertIn("test", self.iac_foo.keys())
         self.assertEqual("test", self.iac_foo["test"])
         delattr(self.iac_foo, "get_test")
-        
-        
+
 
 if __name__ == '__main__':
     unittest.main()
