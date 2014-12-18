@@ -147,10 +147,12 @@ class IdempotentAccessor(IACBase):
 
         Archive values in history. If x.set_<i> exists set
         x[i]=x.set_<i>(y). If not, simply set x[i]=y.
-        """        
+        """
+        if not key in self._keys:
+            raise KeyError(key)
         self._archive_vals()
         self._cur_values[key] = getattr(self, "set_" + key, 
-                                        lambda cls, v: v)(self, value)
+                                        lambda v: v)(value)
 
     def __delitem__(self, key):
         """x.__delitem__(y) <==> del(x[y])
@@ -160,11 +162,27 @@ class IdempotentAccessor(IACBase):
 
         """
         self._archive_vals()
+        if not key in self._keys:
+            raise KeyError(key)
         getattr(self, "del_" + key, lambda cls: None)()
         del(self._cur_values[key])
 
     def __str__(self):
         return self.name
+
+    def __setattr__(self, name, value):
+        if name.startswith('get_'):
+            self._keys.append(name[4:])
+            setattr(self.__class__, name, value)
+        else:
+            self.__dict__[name] = value
+
+    def __delattr__(self, name):
+        if name.startswith('get_'):
+            self._keys.remove(name[4:])
+            delattr(self.__class__, name)
+        else:
+            del(self.__dict__[name])
 
     def __iter__(self):
         return self

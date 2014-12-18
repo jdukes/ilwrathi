@@ -1,9 +1,12 @@
 #!/usr/bin/env python2
+# systemctl start docker
+
 from sys import path
 path.insert(0,'..')
 from ilwrathi import IdempotentAccessor
 import docker
 from random import choice
+from time import sleep
 
 
 class DockerIAC(IdempotentAccessor):
@@ -43,12 +46,13 @@ class DockerIAC(IdempotentAccessor):
         
     def get_live_container(self):
         if not self["container"]["State"]["Running"]:
-            self.client.start(self["container"]["ID"])
-        return self.client.inspect_container(self["container"]["ID"])
+            r = self.client.create_container(self["container"]["Image"])
+            self.client.start(r["Id"])
+        return self.client.inspect_container(r["Id"])
 
     def check_live_container(self, val):
         newval = self.client.inspect_container(val["ID"])
-        return val == newval and val["State"]["Running"] 
+        return val["State"]["Running"]
 
     def del_live_container(self):
         self.client.kill(self["live_container"]["ID"])
@@ -58,6 +62,6 @@ class DockerIAC(IdempotentAccessor):
         
 
         
-d = DockerIAC(client=docker.Client(base_url='unix://var/run/docker.sock', 
-                                   version='1.3.0', 
-                                   timeout=10))
+# d = DockerIAC(client=docker.Client(base_url='unix://var/run/docker.sock', 
+#                                    version='1.3.0', 
+#                                    timeout=10))
