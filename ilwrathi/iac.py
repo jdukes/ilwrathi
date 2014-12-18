@@ -129,7 +129,7 @@ class IdempotentAccessor(IACBase):
             val =  getattr(self,"get_" + key)()
             self.history.append(val)
             return val
-        except KeyError:
+        except AttributeError:
             raise KeyError(key)
 
     def _get_and_update_entry(self, key):
