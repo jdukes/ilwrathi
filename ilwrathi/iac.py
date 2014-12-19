@@ -96,6 +96,19 @@ class IdempotentAccessor(IACBase):
     def __init__(self, *args, **kwargs):
         pass
 
+    def profile(self):
+        self.deptree = { k:set() for k in self._keys}
+        old_getitem = self.__getitem__
+        def getitem(self, key):
+            if self._key_stack:
+                self.deptree[self._key_stack[-1]].add(key)
+            return old_getitem(key)
+        setattr(self.__class__, '__getitem__', getitem)
+        self.values()
+        setattr(self.__class__, '__getitem__', old_getitem)
+        deptree = self.deptree
+        return deptree
+
     def __getitem__(self, key):
         """x.__getitem__(y) <==> x[y]
         
