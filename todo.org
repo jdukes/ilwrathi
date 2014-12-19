@@ -17,8 +17,17 @@
    sample matches population?
 * automate race condition testing
 * add data models
-** think about data modeling syntax
-* add fuzzing mixin
+** construct dep tree
+*** add make_profiler() that returns profiler instance
+**** create _key_stack
+**** create deptree = { k:[] for k in _keys}
+**** create __getitem__ wrapper <- this could just avoid infinte recursion anyway
+***** call _getting_key(key)
+***** append key to _key_stack
+***** run __getitem__(key)
+***** pop key off _key_stack
+**** create _getting_key(key)
+***** if 
 * add cross user base class
 * add client base classes
 * add crypto module

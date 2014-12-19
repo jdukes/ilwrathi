@@ -23,3 +23,4 @@ setup.py
 --------------------
 
 All version dependant syntax should go in _py?.py. Version independant code required to make things version independant should go in _common. 
+All functionality should have unit tests to match it. Use python coverage to verify unit tests hit code paths.

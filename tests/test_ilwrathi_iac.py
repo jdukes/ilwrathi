@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #TODO: add verbose messages for each assert to describe why
+#TODO: add doctests
 import unittest
 import types
 import inspect
