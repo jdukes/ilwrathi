@@ -209,9 +209,6 @@ class TestIdempotentAccessor(unittest.TestCase):
             functionname = "_get_" + i + "_executed"
             executed = self.iac_foo.__dict__[functionname]
             self.assertTrue(executed, msg="%s didn't execute" % functionname)
-        #this test is wrong... 
-        msg = "Two execs should always return the same value set"
-        self.assertEqual(self.iac_foo.values()[:2], self.iac_foo.values()[:2], msg=msg)
 
     def test__setattr__(self):
         setattr(self.iac_foo, "get_test",lambda cls: "test")

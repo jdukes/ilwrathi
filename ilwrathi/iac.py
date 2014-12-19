@@ -93,8 +93,8 @@ class IdempotentAccessor(IACBase):
     """ 
     #http://eli.thegreenplace.net/2011/08/14/python-metaclasses-by-example/
 
-    def __init__(self, name=None, *args, **kwargs):
-        self.name = name
+    def __init__(self, *args, **kwargs):
+        pass
 
     def __getitem__(self, key):
         """x.__getitem__(y) <==> x[y]
@@ -107,16 +107,19 @@ class IdempotentAccessor(IACBase):
 
         Be careful of infinite recursion.
         """
+        self._key_stack.append(key)
         if key in self._cur_values:
             value = self._cur_values[key]
-            if not getattr(self, "check_" + key, lambda val:True)(value):
-                return self._get_and_update_entry(key)
-            return value
+            if not key in self._key_stack[:-1] and \
+               not getattr(self, "check_" + key, lambda val:True)(value):
+                value = self._get_and_update_entry(key)
         else:
             try:
-                return self._get_and_update_entry(key)
+                value = self._get_and_update_entry(key)
             except AttributeError:
                 raise KeyError(key)
+        self._key_stack.pop()
+        return value
 
     def keys(self):
         """D.keys() -> list of D's keys"""

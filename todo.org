@@ -1,3 +1,4 @@
+* combine the meta classes as much as possible
 * Fix git problem for builds
 * Add doctest and unittest
 * Add doctest to unittest
@@ -20,14 +21,15 @@
 ** construct dep tree
 *** add make_profiler() that returns profiler instance
 **** create _key_stack
-**** create deptree = { k:[] for k in _keys}
+**** create deptree = { k:set() for k in _keys}
 **** create __getitem__ wrapper <- this could just avoid infinte recursion anyway
 ***** call _getting_key(key)
 ***** append key to _key_stack
 ***** run __getitem__(key)
 ***** pop key off _key_stack
 **** create _getting_key(key)
-***** if 
+***** if _keys_stack is not empty
+****** deptree[_key_stack[-1]].add(key)
 * add cross user base class
 * add client base classes
 * add crypto module

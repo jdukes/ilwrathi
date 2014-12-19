@@ -19,6 +19,7 @@ class _IACMeta(type):
         def init(self, *args, **kwargs):
             self._cur_values = {}
             self.history = []
+            self._key_stack = []
             self.name = kwargs.get("name") or "undefined"
             old_init(self, *args, **kwargs)
         init.__signature__ = signature(old_init)
