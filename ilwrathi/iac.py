@@ -138,7 +138,6 @@ class IdempotentAccessor(IACBase):
         """D.keys() -> list of D's keys"""
         return self._keys
 
-
     def new(self, key):
         """Performs a similar function to x.__getitem__(y) without caching"""
         try:
