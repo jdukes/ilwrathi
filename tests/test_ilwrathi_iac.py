@@ -30,6 +30,9 @@ class IdempotentAccessorTestClass(IdempotentAccessor):
                     setattr(self, meth + "_executed", False)
                 setattr(self, key + "_executed", False)
         self.my_init_executed = True
+        for key in self._keys:
+            functionname = "_get_" + key + "_executed"
+            setattr(self, functionname, False)
 
     def _set_executed(self, method):
         #print "executing for method %s" % method
@@ -92,7 +95,7 @@ class TestIdempotentAccessor(unittest.TestCase):
             self.assertEqual(self.iac_foo[i],
                               func())
         f = self.iac_foo["zfailing"]
-        self.assertNotEquals(f,self.iac_foo["zfailing"])
+        self.assertNotEqual(f,self.iac_foo["zfailing"])
         with self.assertRaises(KeyError):
             self.iac_foo["badkey"]
 
@@ -205,9 +208,11 @@ class TestIdempotentAccessor(unittest.TestCase):
         msg = "values didn't match the expected set"
         for e in expected:
             self.assertIn(e, self.iac_foo.values(), msg=msg)
-        for i in ["spam","eggs","spamandeggs","uniquestr"]:
+        # print("curvals", self.iac_foo._cur_values)
+        # print("values", self.iac_foo.values())
+        for i in self.iac_foo._keys:
             functionname = "_get_" + i + "_executed"
-            executed = self.iac_foo.__dict__[functionname]
+            executed = getattr(self.iac_foo, functionname)
             self.assertTrue(executed, msg="%s didn't execute" % functionname)
 
     def test__setattr__(self):
@@ -215,6 +220,14 @@ class TestIdempotentAccessor(unittest.TestCase):
         self.assertIn("test", self.iac_foo.keys())
         self.assertEqual("test", self.iac_foo["test"])
         delattr(self.iac_foo, "get_test")
+
+    #well this shit doesn't work. 
+    # def test_profile(self):
+    #     p = self.iac_foo.profile()
+    #     self.assertEqual(p['spamandeggs'], {'eggs', 'spam'})
+    #     should work the same twice
+    #     p = self.iac_foo.profile()
+    #     self.assertEqual(p['spamandeggs'], {'eggs', 'spam'})
 
 
 if __name__ == '__main__':
