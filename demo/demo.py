@@ -12,7 +12,7 @@ except ImportError:
     print("easy_install rstr")
     raise
 
-URL = "http://petstore.swagger.wordnik.com:80/api"
+URL = "http://petstore.swagger.io:80/api"
 
 class PetItempotentAccessor(IdempotentAccessor):
 

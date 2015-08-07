@@ -1,3 +1,6 @@
+* generate dep tree from URI formats
+* fix RestJSON client
+** Rest class for uri generation
 * combine the meta classes as much as possible
 * Fix git problem for builds
 * Add doctest and unittest
@@ -19,7 +22,7 @@
 * automate race condition testing
 * add data models
 ** construct dep tree
-*** create an IACProfiler class
+*** add profile() that returns profiler instance
 **** create deptree = { k:set() for k in _keys}
 **** create __getitem__ wrapper
 ***** call _getting_key(key)
